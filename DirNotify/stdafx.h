@@ -16,8 +16,24 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <Shlobj.h>
+#include <Shlwapi.h>
+#include <process.h>
 
 #include <assert.h>
+#include <string>
+#include <vector>
+
+
+
+#include "../../lsMisc/CreateSimpleWindow.h"
+#include "../../lsMisc/GetLastErrorString.h"
+#include "../../lsMisc/TrayIcon.h"
+#include "../../lsMisc/HighDPI.h"
+#include "../../lsMisc/I18N.h"
+#include "../../lsMisc/OpenCommon.h"
+#include "../../lsMisc/IsFileOpen.h"
+#include "../../lsMisc/stdosd/stdosd.h"
 
 #ifdef _DEBUG
 #define DASSERT(s) assert(s)

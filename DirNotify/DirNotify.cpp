@@ -2,23 +2,13 @@
 //
 
 #include "stdafx.h"
-#include <Shlobj.h>
-#include <Shlwapi.h>
-#include <process.h>
-#include <string>
-#include <vector>
 
-#include "../../lsMisc/CreateSimpleWindow.h"
-#include "../../lsMisc/GetLastErrorString.h"
-#include "../../lsMisc/TrayIcon.h"
-#include "../../lsMisc/HighDPI.h"
-#include "../../lsMisc/I18N.h"
-#include "../../lsMisc/OpenCommon.h"
 
 #include "DirNotify.h"
 
 using namespace std;
 using namespace Ambiesoft;
+using namespace Ambiesoft::stdosd;
 
 HICON ghTrayIcon;
 
@@ -97,15 +87,29 @@ void __cdecl start_address(void *)
 
 void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
+	wstring file;
+	{
+		vector<WCHAR> text;
+		text.assign(fni->FileName, fni->FileName + fni->FileNameLength / sizeof(WCHAR));
+		text.push_back(L'\0');
+		file = (LPCWSTR)&text[0];
+	}
+
+	wstring filefull = stdCombinePath(pDir, file);
+	if (IsFileOpen(filefull.c_str()))
+		return;
+	WIN32_FIND_DATA wfd;
+	if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
+		return;
+	
 	wstring message;
 	message += I18N(L"LastWrite Changed");
 	message += L":\r\n";
 	
-	vector<WCHAR> text;
-	text.assign(fni->FileName, fni->FileName + fni->FileNameLength / sizeof(WCHAR));
-	text.push_back(L'\0');
+	message += stdFormat(I18N(L"Size=%d"), wfd.nFileSizeLow);
+	message += L"\r\n";
 
-	message += (LPCWSTR)&text[0];
+	message += file;
 	//showballoon(NULL, //data.h_,
 	//	APPNAME,
 	//	message,

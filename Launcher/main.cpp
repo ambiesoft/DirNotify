@@ -47,6 +47,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		&hProcess))
 		FatalExit(L"Failed to open");
 
-	WaitForSingleObject(hProcess, INFINITE);
+	// WaitForSingleObject(hProcess, INFINITE);
 	return 0;
 }
