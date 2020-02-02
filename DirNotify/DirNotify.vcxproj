@@ -78,7 +78,10 @@
   <ItemGroup>
     <ClInclude Include="..\..\lsMisc\CreateSimpleWindow.h" />
     <ClInclude Include="..\..\lsMisc\GetLastErrorString.h" />
-    <ClInclude Include="..\..\lsMisc\showballoon.h" />
+    <ClInclude Include="..\..\lsMisc\HighDPI.h" />
+    <ClInclude Include="..\..\lsMisc\I18N.h" />
+    <ClInclude Include="..\..\lsMisc\OpenCommon.h" />
+    <ClInclude Include="..\..\lsMisc\TrayIcon.h" />
     <ClInclude Include="DirNotify.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -87,7 +90,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\lsMisc\CreateSimpleWindow.cpp" />
     <ClCompile Include="..\..\lsMisc\GetLastErrorString.cpp" />
-    <ClCompile Include="..\..\lsMisc\showballoon.cpp" />
+    <ClCompile Include="..\..\lsMisc\HighDPI.cpp" />
+    <ClCompile Include="..\..\lsMisc\I18N.cpp" />
+    <ClCompile Include="..\..\lsMisc\OpenCommon.cpp" />
+    <ClCompile Include="..\..\lsMisc\TrayIcon.cpp" />
     <ClCompile Include="DirNotify.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

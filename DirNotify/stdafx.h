@@ -17,6 +17,16 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <assert.h>
 
-#define APPNAME L"DirNotify"
-#define I18N(s) s
+#ifdef _DEBUG
+#define DASSERT(s) assert(s)
+#define DVERIFY(s) DASSERT(s)
+#else
+#define DASSERT(s) (void)0
+#define DVERIFY(s) s
+#endif
+
+#define APP_NAME L"DirNotify"
+#define APP_VERSION L"1.0.1"
+
