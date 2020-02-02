@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include <Shlobj.h>
+#include <Shlwapi.h>
 #include <process.h>
 #include <string>
 #include <vector>
@@ -27,18 +29,20 @@ enum {
 struct Data
 {
 	HWND h_;
+	wstring dir_;
 } data;
 void FatalExit(LPCTSTR pError, DWORD dwLE = GetLastError())
 {
-	wstring error = GetLastErrorString(dwLE);
+	wstring error = I18N(pError);
+	error += L"\r\n";
+	error += GetLastErrorString(dwLE);
 	MessageBox(NULL, error.c_str(), APP_NAME, MB_ICONERROR);
 	ExitProcess(-1);
 }
 
 void __cdecl start_address(void *)
 {
-	wstring dir = L"Z:\\Desktop";
-	HANDLE hDir = CreateFile(dir.c_str(),
+	HANDLE hDir = CreateFile(data.dir_.c_str(),
 		GENERIC_READ,
 		FILE_SHARE_READ, // share
 		NULL, // security
@@ -62,7 +66,7 @@ void __cdecl start_address(void *)
 			&dwLen,
 			NULL, NULL))
 			FatalExit(L"Failed to ReadDirectoryChangesW");
-		SendMessage(data.h_, WM_APP_FILECHANGED, (WPARAM)dir.c_str(), (LPARAM)buff);
+		SendMessage(data.h_, WM_APP_FILECHANGED, (WPARAM)data.dir_.c_str(), (LPARAM)buff);
 	}
 	//HANDLE hChange = FindFirstChangeNotification(
 	//	dir.c_str(),                   // directory to watch 
@@ -208,6 +212,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+wstring GetDesktopDirectory()
+{
+	WCHAR path[MAX_PATH];
+	if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, path))
+		return L"";
+	return path;
+}
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
@@ -215,6 +226,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+	
+	data.dir_ = GetDesktopDirectory();
+	if (!PathIsDirectory(data.dir_.c_str()))
+		FatalExit(L"Failed to get desktop directory");
 
 	InitHighDPISupport();
 	i18nInitLangmap(hInstance, NULL, _T(""));
@@ -232,7 +247,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	if (!hThread)
 		FatalExit(L"Failed to create thread");
 
-	DVERIFY(AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, L"AAA"));
+	DVERIFY(AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME));
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
