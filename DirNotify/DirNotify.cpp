@@ -34,7 +34,7 @@ void __cdecl start_address(void *)
 {
 	HANDLE hDir = CreateFile(data.dir_.c_str(),
 		GENERIC_READ,
-		FILE_SHARE_READ, // share
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // share
 		NULL, // security
 		OPEN_EXISTING, // disposition
 		FILE_FLAG_BACKUP_SEMANTICS,
