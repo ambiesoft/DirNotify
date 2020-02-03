@@ -13,6 +13,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="4 dist">
+      <UniqueIdentifier>{7ae5ef0a-3df7-48d9-8104-bffc7ec021b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,5 +69,10 @@
     <Image Include="vvvvvv.ico">
       <Filter>3 Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="history.txt">
+      <Filter>4 dist</Filter>
+    </Text>
   </ItemGroup>
 </Project>

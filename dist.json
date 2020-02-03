@@ -1,0 +1,37 @@
+{
+    "name": "DirNotify",
+    "solution": "DirNotify.sln",
+    "targetproject": "Launcher",
+    "configuration": "Release",
+    "targets": [
+        {
+            "setoutdirforbuild": false,
+            "outdir": "Release\\v120_xp\\DirNotify\\",
+            "platform": "Win32"
+        },
+        {
+            "setoutdirforbuild": false,
+            "outdir": "Release\\v120_xp\\DirNotify\\",
+            "platform": "x64"
+        }
+    ],
+    "ShouldBeFiles": [
+        "DirNotify.exe",
+        "DirNotify.pdb",
+        "history.txt",
+        "x64\\DirNotify.exe",
+        "x64\\DirNotify.pdb",
+        "x64\\lang\\jpn.txt",
+        "x86\\DirNotify.exe",
+        "x86\\DirNotify.pdb",
+        "x86\\lang\\jpn.txt"
+    ],
+    "TotalFileCount": "exact",
+    "archivedir": "C:\\Linkout",
+    "remotedir": "http://ambiesoft.fam.cx/ffdav/uploads/dirnotify/",
+    "remotesha1": "http://ambiesoft.fam.cx/ffdav/uploads/getSha1.php?file=dirnotify/{}",
+    "ShouldNotBeFiles": [],
+    "ShouldBeOneOfThem": [],
+    "obtainverfrom": "history.txt",
+    "obtainverregex": "\\d+\\.\\d+\\.\\d+"
+}
