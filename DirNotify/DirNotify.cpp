@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-
+#include "../../lsMisc/CHandle.h"
 
 #include "DirNotify.h"
 
@@ -223,6 +223,14 @@ wstring GetDesktopDirectory()
 		return L"";
 	return path;
 }
+
+CHandle hDupCheck;
+bool CheckDuplicateInstance()
+{
+	DASSERT(!hDupCheck);
+	hDupCheck = CreateMutex(NULL, TRUE, L"DirNotify_Mutex");
+	return GetLastError() != ERROR_ALREADY_EXISTS;
+}
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
@@ -231,6 +239,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	
+	if (!CheckDuplicateInstance())
+		return 1;
+
 	data.dir_ = GetDesktopDirectory();
 	if (!PathIsDirectory(data.dir_.c_str()))
 		FatalExit(L"Failed to get desktop directory");

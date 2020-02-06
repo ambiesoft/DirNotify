@@ -1,2 +1,5 @@
+2020/02/06 ver1.0.2
+Check duplicate instance
+
 2020/02/03 ver1.0.1
 first
