@@ -92,6 +92,9 @@
     <ClCompile Include="..\..\lsMisc\IsFileOpen.cpp">
       <Filter>2 Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="monitor.cpp">
+      <Filter>2 Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirNotify.rc">

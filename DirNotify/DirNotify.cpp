@@ -11,17 +11,9 @@ using namespace Ambiesoft;
 using namespace Ambiesoft::stdosd;
 
 HICON ghTrayIcon;
+GlobalData gdata;
 
-enum {
-	WM_APP_FILECHANGED = WM_APP + 1,
-	WM_APP_TRAY_NOTIFY,
-};
-struct Data
-{
-	HWND h_;
-	wstring dir_;
-} data;
-void FatalExit(LPCTSTR pError, DWORD dwLE = GetLastError())
+void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
 	wstring error = I18N(pError);
 	error += L"\r\n";
@@ -30,60 +22,6 @@ void FatalExit(LPCTSTR pError, DWORD dwLE = GetLastError())
 	ExitProcess(-1);
 }
 
-void __cdecl start_address(void *)
-{
-	HANDLE hDir = CreateFile(data.dir_.c_str(),
-		GENERIC_READ,
-		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // share
-		NULL, // security
-		OPEN_EXISTING, // disposition
-		FILE_FLAG_BACKUP_SEMANTICS,
-		NULL // template
-		);
-	if (INVALID_HANDLE_VALUE == hDir)
-		FatalExit(L"Failed to open dir");
-
-	const int BUFFLEN = 4096;
-	char buff[BUFFLEN];
-	DWORD dwLen;
-	while (true)
-	{
-		if (!ReadDirectoryChangesW(hDir,
-			buff,
-			BUFFLEN,
-			FALSE, // subtree
-			FILE_NOTIFY_CHANGE_LAST_WRITE,
-			&dwLen,
-			NULL, NULL))
-			FatalExit(L"Failed to ReadDirectoryChangesW");
-		SendMessage(data.h_, WM_APP_FILECHANGED, (WPARAM)data.dir_.c_str(), (LPARAM)buff);
-	}
-	//HANDLE hChange = FindFirstChangeNotification(
-	//	dir.c_str(),                   // directory to watch 
-	//	FALSE,                         // do not watch subtree 
-	//	FILE_NOTIFY_CHANGE_LAST_WRITE); // watch file name changes 
-	//if (INVALID_HANDLE_VALUE == hChange)
-	//	FatalExit(L"Failed to create ChangeNotification");
-
-	//while (true)
-	//{
-	//	switch (WaitForSingleObject(hChange, INFINITE))
-	//	{
-	//	case WAIT_OBJECT_0:
-	//		ReadDirectoryChangesW(hDir,
-	//			buff,
-	//			BUFFLEN,
-	//			FALSE, // subtree
-	//			FILE_NOTIFY_CHANGE_LAST_WRITE,
-	//			&dwLen,
-	//			NULL, NULL);
-
-	//		SendMessage(data.h_, WM_APP_FILECHANGED, (WPARAM)buff, 0);
-	//		if (!FindNextChangeNotification(hChange))
-	//			FatalExit(L"Failed to FindNextChangeNotification");
-	//	}
-	//}
-}
 
 void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
@@ -119,7 +57,7 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	//	FALSE, // no messageloop in this function
 	//	1);
 
-	PopupTrayIcon(data.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str());
+	PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str());
 }
 
 void OnCommand(HWND hWnd, WORD cmd)
@@ -157,10 +95,20 @@ void OnCommand(HWND hWnd, WORD cmd)
 	}
 
 }
+UINT WM_TASKBARCREATED;
+
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
+	case WM_CREATE:
+	{
+		WM_TASKBARCREATED = RegisterWindowMessage(_T("TaskbarCreated"));
+	}
+	break;
+
 	case WM_APP_TRAY_NOTIFY:
 		switch (lParam)
 		{
@@ -211,6 +159,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	default:
+		if(message == WM_TASKBARCREATED)
+		{
+			InitMonitor(hWnd);
+		}
+
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
@@ -231,6 +184,8 @@ bool CheckDuplicateInstance()
 	hDupCheck = CreateMutex(NULL, TRUE, L"DirNotify_Mutex");
 	return GetLastError() != ERROR_ALREADY_EXISTS;
 }
+
+
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
@@ -238,31 +193,30 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-	
-	if (!CheckDuplicateInstance())
-		return 1;
-
-	data.dir_ = GetDesktopDirectory();
-	if (!PathIsDirectory(data.dir_.c_str()))
-		FatalExit(L"Failed to get desktop directory");
 
 	InitHighDPISupport();
 	i18nInitLangmap(hInstance, NULL, _T(""));
+
+	if (!CheckDuplicateInstance())
+		return 1;
+
+	gdata.dir_ = GetDesktopDirectory();
+	if (!PathIsDirectory(gdata.dir_.c_str()))
+		ExitFatal(L"Failed to get desktop directory");
+
 	ghTrayIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DirNotify));
 	DVERIFY(ghTrayIcon);
 
 	HWND hWnd = CreateSimpleWindow(NULL, NULL, NULL, WndProc);
 	if (!hWnd)
-		FatalExit(L"Failed to create window");
-	data.h_ = hWnd;
+		ExitFatal(L"Failed to create window");
+	gdata.h_ = hWnd;
 	SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)ghTrayIcon);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)ghTrayIcon);
 
-	HANDLE hThread = (HANDLE)_beginthread(start_address, 0, NULL);
-	if (!hThread)
-		FatalExit(L"Failed to create thread");
+	InitMonitor(hWnd);
 
-	DVERIFY(AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME));
+
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{

@@ -1,3 +1,6 @@
+2020/02/10 ver1.0.3
+Restore taskbar icon and monitor after the explorer crashes.
+
 2020/02/06 ver1.0.2
 Check duplicate instance
 
