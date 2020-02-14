@@ -44,5 +44,5 @@
 #endif
 
 #define APP_NAME L"DirNotify"
-#define APP_VERSION L"1.0.3"
+#define APP_VERSION L"1.0.4"
 

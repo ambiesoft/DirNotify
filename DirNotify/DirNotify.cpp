@@ -60,6 +60,76 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str());
 }
 
+UINT WM_TASKBARCREATED;
+
+vector<wstring> GetAllFiles(const wstring& dir)
+{
+	vector<wstring> files;
+	WIN32_FIND_DATA wfd;
+	HANDLE hFind = FindFirstFile(stdCombinePath(dir, L"*.*").c_str(), &wfd);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return files;
+	do
+	{
+		if (wfd.cFileName[0] == L'.' && wfd.cFileName[1] == 0)
+			continue;
+		if (wfd.cFileName[0] == L'.' && wfd.cFileName[1] == L'.' && wfd.cFileName[2] == 0)
+			continue;
+		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			continue;
+		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
+			continue;
+		files.push_back(stdCombinePath(dir, wfd.cFileName));
+	} while (FindNextFile(hFind, &wfd));
+	FindClose(hFind);
+	return files;
+}
+
+vector<wstring> gMenuFiles;
+HMENU CreateFileMenu()
+{
+	HMENU hSubMenu = CreatePopupMenu();
+
+	gMenuFiles = GetAllFiles(StdGetDesktopDirectory());
+	int maxcount = IDC_FILE_END - IDC_FILE_START + 1;
+	if (gMenuFiles.size() > maxcount)
+		gMenuFiles.resize(maxcount);
+	
+	int index = 0;
+	for (auto&& file : gMenuFiles)
+		AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_FILE_START + (index++), file.c_str());
+
+	return hSubMenu;
+}
+HMENU CreateTrayPopupMenu()
+{
+	HMENU hSubMenu = CreatePopupMenu();
+#ifdef _DEBUG
+	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_START, L"TEST");
+	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
+#endif
+	AppendMenu(hSubMenu, MF_POPUP, (UINT_PTR)CreateFileMenu(), L"&Open");
+	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
+
+	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_ABOUT, (L"&About..."));
+	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_SHOWHELP, (L"&Help..."));
+	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
+
+	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_QUIT, (L"&Exit"));
+	
+	i18nChangeMenuText(hSubMenu);
+
+	return hSubMenu;
+}
+
+void OnFileMenu(HWND hWnd, WORD cmd)
+{
+	DASSERT(IDC_FILE_START <= cmd&&cmd <= IDC_FILE_END);
+	int index = cmd - IDC_FILE_START;
+
+	wstring file = gMenuFiles[index];
+	OpenCommon(hWnd, file.c_str());
+}
 void OnCommand(HWND hWnd, WORD cmd)
 {
 	switch (cmd)
@@ -90,13 +160,20 @@ void OnCommand(HWND hWnd, WORD cmd)
 	break;
 
 	case IDC_QUIT:
+	{
 		DestroyWindow(hWnd);
-		break;
+	}
+	break;
+
+	default:
+	{
+		if (IDC_FILE_START <= cmd && cmd <= IDC_FILE_END)
+			OnFileMenu(hWnd,cmd);
+	}
+	break;
 	}
 
 }
-UINT WM_TASKBARCREATED;
-
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -121,18 +198,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONUP:
 		{
 			POINT apos;
-			HMENU hSubMenu = CreatePopupMenu();
-#ifdef _DEBUG
-			AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_START, L"TEST");
-			AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
-#endif
-			AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_ABOUT, (L"&About..."));
-			AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_SHOWHELP, (L"&Help..."));
-			AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
+			HMENU hSubMenu = CreateTrayPopupMenu();
 
-			AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_QUIT, (L"&Exit"));
-
-			i18nChangeMenuText(hSubMenu);
 
 			SetForegroundWindow(hWnd);
 			GetCursorPos((LPPOINT)&apos);
@@ -169,13 +236,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-wstring GetDesktopDirectory()
-{
-	WCHAR path[MAX_PATH];
-	if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, path))
-		return L"";
-	return path;
-}
+
 
 CHandle hDupCheck;
 bool CheckDuplicateInstance()
@@ -200,7 +261,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	if (!CheckDuplicateInstance())
 		return 1;
 
-	gdata.dir_ = GetDesktopDirectory();
+	gdata.dir_ = StdGetDesktopDirectory();
 	if (!PathIsDirectory(gdata.dir_.c_str()))
 		ExitFatal(L"Failed to get desktop directory");
 
