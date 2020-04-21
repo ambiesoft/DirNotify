@@ -5,6 +5,7 @@
 enum {
 	WM_APP_FILECHANGED = WM_APP + 1,
 	WM_APP_TRAY_NOTIFY,
+	WM_APP_ACTIVATE,
 };
 
 struct GlobalData

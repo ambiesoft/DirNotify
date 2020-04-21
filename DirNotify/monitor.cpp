@@ -74,6 +74,9 @@ void InitMonitor(HWND hWnd)
 	if (!shThread)
 		ExitFatal(L"Failed to create thread");
 
-	DVERIFY(AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME));
-
+	RemoveTrayIcon(hWnd, WM_APP_TRAY_NOTIFY);
+	if (!AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME))
+	{
+		ExitFatal(L"Failed AddTrayIcon");
+	}
 }

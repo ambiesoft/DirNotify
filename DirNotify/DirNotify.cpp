@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "../../lsMisc/CHandle.h"
+#include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
 
 #include "DirNotify.h"
 
@@ -12,6 +13,7 @@ using namespace Ambiesoft::stdosd;
 
 HICON ghTrayIcon;
 GlobalData gdata;
+CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
 
 void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
@@ -183,6 +185,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 	{
 		WM_TASKBARCREATED = RegisterWindowMessage(_T("TaskbarCreated"));
+		DASSERT(sgHwnd == nullptr);
+		sgHwnd = hWnd;
+	}
+	break;
+
+	case WM_APP_ACTIVATE:
+	{
+		InitMonitor(hWnd);
 	}
 	break;
 
@@ -259,7 +269,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	i18nInitLangmap(hInstance, NULL, _T(""));
 
 	if (!CheckDuplicateInstance())
+	{
+		if (sgHwnd == nullptr)
+			ExitFatal(L"This is duplicated instance but failed to find previous one.");
+		else
+		{
+			PostMessage(sgHwnd, WM_APP_ACTIVATE, 0, 0);
+		}
 		return 1;
+	}
 
 	gdata.dir_ = StdGetDesktopDirectory();
 	if (!PathIsDirectory(gdata.dir_.c_str()))

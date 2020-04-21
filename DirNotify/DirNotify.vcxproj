@@ -169,11 +169,13 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
   <ItemGroup>
     <ClInclude Include="..\..\lsMisc\CHandle.h" />
     <ClInclude Include="..\..\lsMisc\CreateSimpleWindow.h" />
+    <ClInclude Include="..\..\lsMisc\dverify.h" />
     <ClInclude Include="..\..\lsMisc\GetLastErrorString.h" />
     <ClInclude Include="..\..\lsMisc\HighDPI.h" />
     <ClInclude Include="..\..\lsMisc\I18N.h" />
     <ClInclude Include="..\..\lsMisc\IsFileOpen.h" />
     <ClInclude Include="..\..\lsMisc\OpenCommon.h" />
+    <ClInclude Include="..\..\lsMisc\SessionGlobalMemory\SessionGlobalMemory.h" />
     <ClInclude Include="..\..\lsMisc\stdosd\stdosd.h" />
     <ClInclude Include="..\..\lsMisc\TrayIcon.h" />
     <ClInclude Include="DirNotify.h" />

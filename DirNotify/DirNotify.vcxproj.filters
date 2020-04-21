@@ -57,6 +57,12 @@
     <ClInclude Include="..\..\lsMisc\CHandle.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\lsMisc\SessionGlobalMemory\SessionGlobalMemory.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lsMisc\dverify.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

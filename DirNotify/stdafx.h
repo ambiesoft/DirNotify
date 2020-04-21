@@ -34,15 +34,9 @@
 #include "../../lsMisc/OpenCommon.h"
 #include "../../lsMisc/IsFileOpen.h"
 #include "../../lsMisc/stdosd/stdosd.h"
+#include "../../lsMisc/dverify.h"
 
-#ifdef _DEBUG
-#define DASSERT(s) assert(s)
-#define DVERIFY(s) DASSERT(s)
-#else
-#define DASSERT(s) (void)0
-#define DVERIFY(s) s
-#endif
 
 #define APP_NAME L"DirNotify"
-#define APP_VERSION L"1.0.4"
+#define APP_VERSION L"1.0.5"
 
