@@ -93,7 +93,7 @@ HMENU CreateFileMenu()
 	HMENU hSubMenu = CreatePopupMenu();
 
 	gMenuFiles = GetAllFiles(StdGetDesktopDirectory());
-	int maxcount = IDC_FILE_END - IDC_FILE_START + 1;
+	size_t maxcount = IDC_FILE_END - IDC_FILE_START + 1;
 	if (gMenuFiles.size() > maxcount)
 		gMenuFiles.resize(maxcount);
 	
