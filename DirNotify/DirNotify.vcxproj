@@ -170,6 +170,7 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
     <ClInclude Include="..\..\lsMisc\CHandle.h" />
     <ClInclude Include="..\..\lsMisc\CreateSimpleWindow.h" />
     <ClInclude Include="..\..\lsMisc\dverify.h" />
+    <ClInclude Include="..\..\lsMisc\GetAllFile.h" />
     <ClInclude Include="..\..\lsMisc\GetLastErrorString.h" />
     <ClInclude Include="..\..\lsMisc\HighDPI.h" />
     <ClInclude Include="..\..\lsMisc\I18N.h" />
@@ -185,6 +186,7 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\lsMisc\CreateSimpleWindow.cpp" />
+    <ClCompile Include="..\..\lsMisc\GetAllFile.cpp" />
     <ClCompile Include="..\..\lsMisc\GetLastErrorString.cpp" />
     <ClCompile Include="..\..\lsMisc\HighDPI.cpp" />
     <ClCompile Include="..\..\lsMisc\I18N.cpp" />

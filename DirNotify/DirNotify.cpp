@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "../../lsMisc/CHandle.h"
+#include "../../lsMisc/GetAllFile.h"
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
 
 #include "DirNotify.h"
@@ -64,35 +65,13 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 
 UINT WM_TASKBARCREATED;
 
-vector<wstring> GetAllFiles(const wstring& dir)
-{
-	vector<wstring> files;
-	WIN32_FIND_DATA wfd;
-	HANDLE hFind = FindFirstFile(stdCombinePath(dir, L"*.*").c_str(), &wfd);
-	if (hFind == INVALID_HANDLE_VALUE)
-		return files;
-	do
-	{
-		if (wfd.cFileName[0] == L'.' && wfd.cFileName[1] == 0)
-			continue;
-		if (wfd.cFileName[0] == L'.' && wfd.cFileName[1] == L'.' && wfd.cFileName[2] == 0)
-			continue;
-		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			continue;
-		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
-			continue;
-		files.push_back(stdCombinePath(dir, wfd.cFileName));
-	} while (FindNextFile(hFind, &wfd));
-	FindClose(hFind);
-	return files;
-}
 
 vector<wstring> gMenuFiles;
 HMENU CreateFileMenu()
 {
 	HMENU hSubMenu = CreatePopupMenu();
 
-	gMenuFiles = GetAllFiles(StdGetDesktopDirectory());
+	gMenuFiles = GetAllFiles(StdGetDesktopDirectory(), GETALLFILES_SORT_LASTWRITETIME);
 	size_t maxcount = IDC_FILE_END - IDC_FILE_START + 1;
 	if (gMenuFiles.size() > maxcount)
 		gMenuFiles.resize(maxcount);

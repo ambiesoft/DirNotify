@@ -63,6 +63,9 @@
     <ClInclude Include="..\..\lsMisc\dverify.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\lsMisc\GetAllFile.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -99,6 +102,9 @@
       <Filter>2 Source Files</Filter>
     </ClCompile>
     <ClCompile Include="monitor.cpp">
+      <Filter>2 Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lsMisc\GetAllFile.cpp">
       <Filter>2 Source Files</Filter>
     </ClCompile>
   </ItemGroup>
