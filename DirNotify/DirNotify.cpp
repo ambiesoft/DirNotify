@@ -206,6 +206,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_APP_FILECHANGED:
 		OnChanged((LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
+		PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
+		break;
+	case WM_APP_REFRESH_DESKTOP:
+		SHChangeNotify(0x8000000, 0x1000, 0, 0);
 		break;
 	case WM_COMMAND:
 		OnCommand(hWnd, LOWORD(wParam));
