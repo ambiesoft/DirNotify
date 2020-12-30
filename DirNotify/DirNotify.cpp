@@ -18,7 +18,7 @@ CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
 
 void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
-	wstring error = I18N(pError);
+	wstring error = pError;
 	error += L"\r\n";
 	error += GetLastErrorString(dwLE);
 	MessageBox(NULL, error.c_str(), APP_NAME, MB_ICONERROR);
@@ -51,14 +51,6 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	message += L"\r\n";
 
 	message += file;
-	//showballoon(NULL, //data.h_,
-	//	APPNAME,
-	//	message,
-	//	NULL,
-	//	5000,
-	//	1,
-	//	FALSE, // no messageloop in this function
-	//	1);
 
 	PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str());
 }
@@ -254,7 +246,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	if (!CheckDuplicateInstance())
 	{
 		if (sgHwnd == nullptr)
-			ExitFatal(L"This is duplicated instance but failed to find previous one.");
+			ExitFatal(I18N(L"This is duplicated instance but failed to find previous one."));
 		else
 		{
 			PostMessage(sgHwnd, WM_APP_ACTIVATE, 0, 0);
@@ -264,14 +256,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	gdata.dir_ = StdGetDesktopDirectory();
 	if (!PathIsDirectory(gdata.dir_.c_str()))
-		ExitFatal(L"Failed to get desktop directory");
+		ExitFatal(I18N(L"Failed to get desktop directory."));
 
 	ghTrayIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DirNotify));
 	DVERIFY(ghTrayIcon);
 
 	HWND hWnd = CreateSimpleWindow(NULL, NULL, NULL, WndProc);
 	if (!hWnd)
-		ExitFatal(L"Failed to create window");
+		ExitFatal(I18N(L"Failed to create window."));
 	gdata.h_ = hWnd;
 	SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)ghTrayIcon);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)ghTrayIcon);

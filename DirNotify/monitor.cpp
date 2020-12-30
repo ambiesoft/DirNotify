@@ -21,7 +21,7 @@ void __cdecl start_address(void * pvoid)
 		NULL // template
 		);
 	if (INVALID_HANDLE_VALUE == shDir)
-		ExitFatal(L"Failed to open dir");
+		ExitFatal(L"Failed to open directory.");
 
 	const int BUFFLEN = 4096;
 	char buff[BUFFLEN];
@@ -38,31 +38,6 @@ void __cdecl start_address(void * pvoid)
 			ExitFatal(L"Failed to ReadDirectoryChangesW");
 		SendMessage(pData->h_, WM_APP_FILECHANGED, (WPARAM)pData->dir_.c_str(), (LPARAM)buff);
 	}
-	//HANDLE hChange = FindFirstChangeNotification(
-	//	dir.c_str(),                   // directory to watch 
-	//	FALSE,                         // do not watch subtree 
-	//	FILE_NOTIFY_CHANGE_LAST_WRITE); // watch file name changes 
-	//if (INVALID_HANDLE_VALUE == hChange)
-	//	ExitFatal(L"Failed to create ChangeNotification");
-
-	//while (true)
-	//{
-	//	switch (WaitForSingleObject(hChange, INFINITE))
-	//	{
-	//	case WAIT_OBJECT_0:
-	//		ReadDirectoryChangesW(hDir,
-	//			buff,
-	//			BUFFLEN,
-	//			FALSE, // subtree
-	//			FILE_NOTIFY_CHANGE_LAST_WRITE,
-	//			&dwLen,
-	//			NULL, NULL);
-
-	//		SendMessage(data.h_, WM_APP_FILECHANGED, (WPARAM)buff, 0);
-	//		if (!FindNextChangeNotification(hChange))
-	//			ExitFatal(L"Failed to FindNextChangeNotification");
-	//	}
-	//}
 }
 
 void InitMonitor(HWND hWnd)
@@ -72,11 +47,22 @@ void InitMonitor(HWND hWnd)
 		TerminateThread(shThread, -1);
 	shThread = (HANDLE)_beginthread(start_address, 0, NULL);
 	if (!shThread)
-		ExitFatal(L"Failed to create thread");
+		ExitFatal(I18N(L"Failed to create thread."));
 
 	RemoveTrayIcon(hWnd, WM_APP_TRAY_NOTIFY);
-	if (!AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME))
+
+	do
 	{
-		ExitFatal(L"Failed AddTrayIcon");
-	}
+		if (AddTrayIcon(hWnd, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME))
+			return;
+
+		int nRet = MessageBox(hWnd, I18N(L"Failed to Add Tray Icon."), APP_NAME,
+			MB_ICONERROR | MB_ABORTRETRYIGNORE);
+		if (nRet == IDABORT)
+			ExitProcess(-1);
+		else if (nRet == IDRETRY)
+			continue;
+		else
+			break;
+	} while (true);
 }
