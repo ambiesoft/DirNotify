@@ -52,7 +52,7 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 
 	message += file;
 
-	PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str());
+	DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
 }
 
 UINT WM_TASKBARCREATED;
@@ -63,7 +63,7 @@ HMENU CreateFileMenu()
 {
 	HMENU hSubMenu = CreatePopupMenu();
 
-	gMenuFiles = GetAllFiles(StdGetDesktopDirectory(), GETALLFILES_SORT_LASTWRITETIME);
+	gMenuFiles = GetAllFiles(stdGetDesktopDirectory(), GETALLFILES_SORT_LASTWRITETIME);
 	size_t maxcount = IDC_FILE_END - IDC_FILE_START + 1;
 	if (gMenuFiles.size() > maxcount)
 		gMenuFiles.resize(maxcount);
@@ -254,7 +254,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return 1;
 	}
 
-	gdata.dir_ = StdGetDesktopDirectory();
+	gdata.dir_ = stdGetDesktopDirectory();
 	if (!PathIsDirectory(gdata.dir_.c_str()))
 		ExitFatal(I18N(L"Failed to get desktop directory."));
 

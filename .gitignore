@@ -1,3 +1,4 @@
+.vs/
 Debug/
 Release/
 ipch/
@@ -5,3 +6,4 @@ ipch/
 *.opensdf
 *.suo
 *.aps
+*.user
