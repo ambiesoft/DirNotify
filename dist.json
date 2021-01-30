@@ -6,12 +6,12 @@
     "targets": [
         {
             "setoutdirforbuild": false,
-            "outdir": "Release\\v120_xp\\DirNotify\\",
+            "outdir": "Release\\v142\\DirNotify\\",
             "platform": "Win32"
         },
         {
             "setoutdirforbuild": false,
-            "outdir": "Release\\v120_xp\\DirNotify\\",
+            "outdir": "Release\\v142\\DirNotify\\",
             "platform": "x64"
         }
     ],
