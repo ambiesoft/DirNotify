@@ -38,5 +38,5 @@
 
 
 #define APP_NAME L"DirNotify"
-#define APP_VERSION L"1.0.8"
+#define APP_VERSION L"1.0.9"
 
