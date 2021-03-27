@@ -9,3 +9,5 @@
 "This is duplicated instance but failed to find previous one."="２つのめインスタンスの起動ですが最初のものが見つかりません。"
 "Failed to get desktop directory."="デスクトップディレクトリの取得に失敗しました。"
 "Failed to create window."="ウインドウの作成に失敗しました。"
+"'%s' is not a directory."="'%s' はディレクトリではありません。"
+"Size=%d bytes"="サイズ＝%dバイト"

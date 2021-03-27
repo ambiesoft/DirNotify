@@ -55,7 +55,7 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	message += wstring() + L" '" + pDir + L"'";
 	message += L"\r\n";
 	
-	message += stdFormat(I18N(L"Size=%d"), wfd.nFileSizeLow);
+	message += stdFormat(I18N(L"Size=%d bytes"), wfd.nFileSizeLow);
 	message += L"\r\n";
 
 	message += file;
@@ -291,7 +291,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	for (auto&& dir : gdata.dirs_)
 	{
 		if (!PathIsDirectory(dir.c_str()))
-			ExitFatal(I18N(L"Failed to get desktop directory."));
+			ExitFatal(stdFormat(I18N(L"'%s' is not a directory."), dir.c_str()));
 	}
 
 	ghTrayIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DirNotify));

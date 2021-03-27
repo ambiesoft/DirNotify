@@ -34,7 +34,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	wstring exe = stdCombinePath(stdGetParentDirectory(stdGetModuleFileName()),
 		stdFormat(L"%s\\DirNotify.exe", Is64BitWindows() ? L"x64":L"x86"));
 	if (!PathFileExists(exe.c_str()))
-		ExitFatal(stdFormat(L"%s does not exit", exe));
+		ExitFatal(stdFormat(L"'%s' does not exit", exe.c_str()));
 
 	CCommandLineString cmd;
 	wstring dummy, args;
