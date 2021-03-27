@@ -12,11 +12,18 @@ enum {
 struct GlobalData
 {
 	HWND h_;
-	std::wstring dir_;
+	std::vector<std::wstring> dirs_;
+};
+
+struct ThreadData
+{
+	wchar_t* pDir_;
 };
 
 void ExitFatal(LPCTSTR pError, DWORD dwLE = GetLastError());
-void InitMonitor(HWND hWnd);
+void ExitFatal(const std::wstring& error, DWORD dwLE = GetLastError());
+void InitMonitors();
+HANDLE InitMonitor(LPCWSTR pDir);
 
 extern HICON ghTrayIcon;
 extern GlobalData gdata;

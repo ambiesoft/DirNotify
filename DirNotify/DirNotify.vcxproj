@@ -169,6 +169,7 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lsMisc\CHandle.h" />
+    <ClInclude Include="..\..\lsMisc\CommandLineParser.h" />
     <ClInclude Include="..\..\lsMisc\CreateSimpleWindow.h" />
     <ClInclude Include="..\..\lsMisc\dverify.h" />
     <ClInclude Include="..\..\lsMisc\GetAllFile.h" />
@@ -180,12 +181,15 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
     <ClInclude Include="..\..\lsMisc\SessionGlobalMemory\SessionGlobalMemory.h" />
     <ClInclude Include="..\..\lsMisc\stdosd\stdosd.h" />
     <ClInclude Include="..\..\lsMisc\TrayIcon.h" />
+    <ClInclude Include="..\..\lsMisc\UrlEncode.h" />
+    <ClInclude Include="..\..\lsMisc\UTF16toUTF8.h" />
     <ClInclude Include="DirNotify.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lsMisc\CommandLineParser.cpp" />
     <ClCompile Include="..\..\lsMisc\CreateSimpleWindow.cpp" />
     <ClCompile Include="..\..\lsMisc\GetAllFile.cpp" />
     <ClCompile Include="..\..\lsMisc\GetLastErrorString.cpp" />
@@ -214,6 +218,8 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="..\..\lsMisc\TrayIcon.cpp" />
+    <ClCompile Include="..\..\lsMisc\UrlEncode.cpp" />
+    <ClCompile Include="..\..\lsMisc\UTF16toUTF8.cpp" />
     <ClCompile Include="DirNotify.cpp" />
     <ClCompile Include="monitor.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -5,6 +5,7 @@
 #include "../../lsMisc/CHandle.h"
 #include "../../lsMisc/GetAllFile.h"
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
+#include "../../lsMisc/CommandLineParser.h"
 
 #include "DirNotify.h"
 
@@ -19,12 +20,18 @@ CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
 void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
 	wstring error = pError;
-	error += L"\r\n";
-	error += GetLastErrorString(dwLE);
+	if (dwLE != NOERROR)
+	{
+		error += L"\r\n";
+		error += GetLastErrorString(dwLE);
+	}
 	MessageBox(NULL, error.c_str(), APP_NAME, MB_ICONERROR);
 	ExitProcess(-1);
 }
-
+void ExitFatal(const std::wstring& error, DWORD dwLE)
+{
+	ExitFatal(error.c_str(), dwLE);
+}
 
 void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
@@ -45,7 +52,8 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	
 	wstring message;
 	message += I18N(L"LastWrite Changed");
-	message += L":\r\n";
+	message += wstring() + L" '" + pDir + L"'";
+	message += L"\r\n";
 	
 	message += stdFormat(I18N(L"Size=%d"), wfd.nFileSizeLow);
 	message += L"\r\n";
@@ -163,7 +171,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_APP_ACTIVATE:
 	{
-		InitMonitor(hWnd);
+		InitMonitors();
 	}
 	break;
 
@@ -213,7 +221,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	default:
 		if(message == WM_TASKBARCREATED)
 		{
-			InitMonitor(hWnd);
+			InitMonitors();
 		}
 
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -254,9 +262,37 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return 1;
 	}
 
-	gdata.dir_ = stdGetDesktopDirectory();
-	if (!PathIsDirectory(gdata.dir_.c_str()))
-		ExitFatal(I18N(L"Failed to get desktop directory."));
+	CCommandLineParser parser;
+	bool isDesktop = false;
+	parser.AddOption(L"-desktop", 0, &isDesktop);
+
+	COption opDir(wstring(), ArgCount::ArgCount_Infinite);
+	parser.AddOption(&opDir);
+
+	parser.Parse();
+
+	if (parser.hadUnknownOption())
+	{
+		ExitFatal(I18N(L"Unknown Options:") + parser.getUnknowOptionStrings());
+	}
+	if (isDesktop)
+	{
+		gdata.dirs_.push_back(stdGetDesktopDirectory());
+	}
+	for (size_t i = 0; i < opDir.getValueCount(); ++i)
+	{
+		gdata.dirs_.push_back(opDir.getValue(i));
+	}
+	if (gdata.dirs_.empty())
+	{
+		ExitFatal(I18N(L"No dirs"));
+	}
+
+	for (auto&& dir : gdata.dirs_)
+	{
+		if (!PathIsDirectory(dir.c_str()))
+			ExitFatal(I18N(L"Failed to get desktop directory."));
+	}
 
 	ghTrayIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DirNotify));
 	DVERIFY(ghTrayIcon);
@@ -268,7 +304,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)ghTrayIcon);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)ghTrayIcon);
 
-	InitMonitor(hWnd);
+	InitMonitors();
 
 
 	MSG msg;
