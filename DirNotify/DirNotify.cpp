@@ -44,8 +44,11 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	}
 
 	wstring filefull = stdCombinePath(pDir, file);
-	if (IsFileOpen(filefull.c_str()))
-		return;
+
+	// Does this lock file?
+	//if (IsFileOpen(filefull.c_str()))
+	//	return;
+
 	WIN32_FIND_DATA wfd;
 	if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
 		return;
