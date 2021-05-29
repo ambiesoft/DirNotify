@@ -112,11 +112,14 @@ HMENU CreateFileMenu()
 HMENU CreateTrayPopupMenu()
 {
 	HMENU hSubMenu = CreatePopupMenu();
+	
 #ifdef _DEBUG
 	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_START, L"TEST");
 	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
 #endif
-	AppendMenu(hSubMenu, MF_POPUP, (UINT_PTR)CreateFileMenu(), L"&Open");
+	
+	const int indexOpenMenu = GetMenuItemCount(hSubMenu);
+
 	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
 
 	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_ABOUT, (L"&About..."));
@@ -126,6 +129,10 @@ HMENU CreateTrayPopupMenu()
 	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_QUIT, (L"&Exit"));
 	
 	i18nChangeMenuText(hSubMenu);
+
+	// should not I18Ned
+	InsertMenu(hSubMenu, indexOpenMenu, MF_POPUP|MF_BYPOSITION, (UINT_PTR)CreateFileMenu(), 
+		I18N(L"&Open"));
 
 	return hSubMenu;
 }

@@ -1,3 +1,6 @@
+2021/05/29 ver1.0.13
+I18N
+
 2021/05/29 ver1.0.12
 Stop successive notify if it interval is too short
 

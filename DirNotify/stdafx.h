@@ -56,5 +56,5 @@ inline void DTRACE_WITHCOUT(const std::wstring& counterName, const std::wstring&
 #endif
 
 #define APP_NAME L"DirNotify"
-#define APP_VERSION L"1.0.12"
+#define APP_VERSION L"1.0.13"
 

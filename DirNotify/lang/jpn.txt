@@ -11,3 +11,4 @@
 "Failed to create window."="ウインドウの作成に失敗しました。"
 "'%s' is not a directory."="'%s' はディレクトリではありません。"
 "Size=%d bytes"="サイズ＝%dバイト"
+"&Open"="開く(&O)"
