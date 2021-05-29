@@ -16,6 +16,7 @@ using namespace Ambiesoft::stdosd;
 HICON ghTrayIcon;
 GlobalData gdata;
 CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
+DWORD gCurrentThreadId;
 
 void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
@@ -33,7 +34,11 @@ void ExitFatal(const std::wstring& error, DWORD dwLE)
 	ExitFatal(error.c_str(), dwLE);
 }
 
-void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
+bool IsMainThread()
+{
+	return GetCurrentThreadId() == gCurrentThreadId;
+}
+void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
 	wstring file;
 	{
@@ -43,7 +48,22 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		file = (LPCWSTR)&text[0];
 	}
 
-	wstring filefull = stdCombinePath(pDir, file);
+	const wstring filefull = stdCombinePath(pDir, file);
+
+	// check as if notify is too early
+	DTRACE(stdFormat(L"'%s' has been changed.", filefull.c_str()));
+	constexpr DWORD MinTickDelta = 2000;
+	assert(IsMainThread());
+	static DWORD lastTick = 0;
+	const DWORD curTick = GetTickCount();
+	const DWORD tickDelta = curTick - lastTick;
+	if (tickDelta < MinTickDelta)
+	{
+		// Too early
+		DTRACE(stdFormat(L"Canceled:TickDelta(%d) is too short.", tickDelta));
+		return;
+	}
+	lastTick = curTick;
 
 	// Does this lock file?
 	//if (IsFileOpen(filefull.c_str()))
@@ -51,8 +71,10 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 
 	WIN32_FIND_DATA wfd;
 	if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
+	{
+		DTRACE(L"FindFirstFile failed");
 		return;
-	
+	}
 	wstring message;
 	message += I18N(L"LastWrite Changed");
 	message += wstring() + L" '" + pDir + L"'";
@@ -63,6 +85,8 @@ void OnChanged(LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 
 	message += file;
 
+	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
+	PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
 	DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
 }
 
@@ -208,8 +232,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_APP_FILECHANGED:
-		OnChanged((LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
-		PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
+		OnChanged(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
 		break;
 	case WM_APP_REFRESH_DESKTOP:
 		SHChangeNotify(0x8000000, 0x1000, 0, 0);
@@ -264,6 +287,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		}
 		return 1;
 	}
+
+	gCurrentThreadId = GetCurrentThreadId();
 
 	CCommandLineParser parser;
 	bool isDesktop = false;

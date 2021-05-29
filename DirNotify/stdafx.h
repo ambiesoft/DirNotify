@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <string>
 #include <vector>
-
+#include <map>
 
 
 #include "../../lsMisc/CreateSimpleWindow.h"
@@ -36,7 +36,25 @@
 #include "../../lsMisc/stdosd/stdosd.h"
 #include "../../lsMisc/dverify.h"
 
+#ifndef NDEBUG
+inline void DTRACE(const std::wstring& str)
+{
+	OutputDebugString(str.c_str());
+	OutputDebugString(L"\r\n");
+}
+inline void DTRACE_WITHCOUT(const std::wstring& counterName, const std::wstring& str)
+{
+	thread_local std::map<std::wstring, size_t> counterMap;
+	OutputDebugString(std::to_wstring(counterMap[counterName]++).c_str());
+	OutputDebugString(L" ");
+	OutputDebugString(str.c_str());
+	OutputDebugString(L"\r\n");
+}
+#else
+#define DTRACE(s) (void)0
+#define DTRACE_WITHCOUT(n,s) (void)0
+#endif
 
 #define APP_NAME L"DirNotify"
-#define APP_VERSION L"1.0.11"
+#define APP_VERSION L"1.0.12"
 
