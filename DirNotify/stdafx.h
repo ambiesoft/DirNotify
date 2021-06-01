@@ -42,6 +42,11 @@ inline void DTRACE(const std::wstring& str)
 	OutputDebugString(str.c_str());
 	OutputDebugString(L"\r\n");
 }
+inline void DTRACE(DWORD dw)
+{
+	OutputDebugString((L"LastError = " + std::to_wstring(dw)).c_str());
+}
+
 inline void DTRACE_WITHCOUT(const std::wstring& counterName, const std::wstring& str)
 {
 	thread_local std::map<std::wstring, size_t> counterMap;
@@ -56,5 +61,5 @@ inline void DTRACE_WITHCOUT(const std::wstring& counterName, const std::wstring&
 #endif
 
 #define APP_NAME L"DirNotify"
-#define APP_VERSION L"1.0.14"
+#define APP_VERSION L"1.0.15"
 

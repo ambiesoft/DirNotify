@@ -1,3 +1,6 @@
+2021/06/01 ver1.0.15
+Suppress refreshing desktop when directory is not Desktop.
+
 2021/06/01 ver1.0.14
 Refreshing desktop occurs in three seconds after notification.
 
