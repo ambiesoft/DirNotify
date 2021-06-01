@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include <thread>
+
 #include "../../lsMisc/CHandle.h"
 #include "../../lsMisc/GetAllFile.h"
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
@@ -86,7 +88,13 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	message += file;
 
 	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
-	PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
+
+	std::thread thd([&] {
+		Sleep(3 * 1000);
+		PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
+		});
+	thd.detach();
+	
 	DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
 }
 
