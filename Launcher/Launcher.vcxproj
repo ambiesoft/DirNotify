@@ -118,7 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico" />
-    <Image Include="vvvvvv.ico" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="history.txt" />
