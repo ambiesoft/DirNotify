@@ -52,6 +52,19 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 
 	const wstring filefull = stdCombinePath(pDir, file);
 
+	WIN32_FIND_DATA wfd;
+	if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
+	{
+		DTRACE(L"FindFirstFile failed");
+		return;
+	}
+	// skip if file size is zero
+	if (wfd.nFileSizeHigh == 0 && wfd.nFileSizeLow == 0)
+	{
+		DTRACE(stdFormat(L"Canceled '%s':File size is zero", filefull.c_str()));
+		return;
+	}
+
 	// check as if notify is too early
 	DTRACE(stdFormat(L"'%s' has been changed.", filefull.c_str()));
 	constexpr DWORD MinTickDelta = 2000;
@@ -71,12 +84,8 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 	//if (IsFileOpen(filefull.c_str()))
 	//	return;
 
-	WIN32_FIND_DATA wfd;
-	if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
-	{
-		DTRACE(L"FindFirstFile failed");
-		return;
-	}
+
+
 	wstring message;
 	message += I18N(L"LastWrite Changed");
 	message += wstring() + L" '" + pDir + L"'";
