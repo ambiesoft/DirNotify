@@ -174,6 +174,12 @@ void OnCommand(HWND hWnd, WORD cmd)
 		tstring message;
 		message += APP_NAME L" " APP_VERSION;
 		message += _T("\r\n\r\n");
+		message += I18N(L"Watching directories:\r\n");
+		for (auto&& dir : gdata.dirs_)
+		{
+			message += dir;
+			message += L"\r\n";
+		}
 		MessageBox(NULL,
 			message.c_str(),
 			APP_NAME,
@@ -336,7 +342,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	for (size_t i = 0; i < opDir.getValueCount(); ++i)
 	{
-		gdata.dirs_.push_back(opDir.getValue(i));
+		gdata.dirs_.push_back(stdExpandEnvironmentStrings(opDir.getValue(i)));
 	}
 	if (gdata.dirs_.empty())
 	{
@@ -346,7 +352,22 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	for (auto&& dir : gdata.dirs_)
 	{
 		if (!PathIsDirectory(dir.c_str()))
+		{
+			if (IDYES == MessageBox(NULL,
+				stdFormat(I18N(L"Directory '%s' does not exist. Do you want to create it?"), dir.c_str()).c_str(),
+				APP_NAME,
+				MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
+			{
+				CreateDirectory(dir.c_str(), NULL);
+			}
+		}
+	}
+	for (auto&& dir : gdata.dirs_)
+	{
+		if (!PathIsDirectory(dir.c_str()))
+		{
 			ExitFatal(stdFormat(I18N(L"'%s' is not a directory."), dir.c_str()));
+		}
 	}
 
 	ghTrayIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DirNotify));

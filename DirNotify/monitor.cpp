@@ -3,6 +3,8 @@
 
 
 using namespace Ambiesoft;
+using namespace Ambiesoft::stdosd;
+using namespace std;
 
 
 void __cdecl start_address(void * pvoid)
@@ -50,7 +52,11 @@ void InitMonitors()
 	RemoveTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY);
 	do
 	{
-		if (AddTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME))
+		wstring trayMessage = stdFormat(I18N(L"Watching %d dirs | %s"),
+			gdata.dirs_.size(),
+			APP_NAME);
+
+		if (AddTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, trayMessage.c_str()))
 			return;
 
 		int nRet = MessageBox(gdata.h_, I18N(L"Failed to Add Tray Icon."), APP_NAME,
