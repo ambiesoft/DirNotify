@@ -8,6 +8,7 @@
 #include "../../lsMisc/GetAllFile.h"
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
 #include "../../lsMisc/CommandLineParser.h"
+#include "../../lsMisc/GetVersionString.h"
 
 #include "DirNotify.h"
 
@@ -18,7 +19,34 @@ using namespace Ambiesoft::stdosd;
 HICON ghTrayIcon;
 GlobalData gdata;
 CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
-DWORD gCurrentThreadId;
+DWORD gMainThreadId = GetCurrentThreadId();
+bool IsMainThread()
+{
+	return GetCurrentThreadId() == gMainThreadId;
+}
+
+class MessageBod
+{
+	vector<wstring> messages_;
+	size_t curID_ = -1;
+public:
+	size_t curID() const { return curID_; }
+	void setMessage(wstring&& message) {
+		assert(IsMainThread());
+		curID_ = messages_.size();
+		messages_.emplace_back(message);
+	}
+	bool IsCurID(size_t id) const {
+		return curID_ == id;
+	}
+	const wstring& getMessage(size_t id) const {
+		return messages_[id];
+	}
+	void clear() {
+		messages_.clear();
+		curID_ = -1;
+	}
+} gMessagePod;
 
 void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
@@ -36,10 +64,8 @@ void ExitFatal(const std::wstring& error, DWORD dwLE)
 	ExitFatal(error.c_str(), dwLE);
 }
 
-bool IsMainThread()
-{
-	return GetCurrentThreadId() == gCurrentThreadId;
-}
+
+
 void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
 	wstring file;
@@ -67,47 +93,45 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 
 	// check as if notify is too early
 	DTRACE(stdFormat(L"'%s' has been changed.", filefull.c_str()));
-	constexpr DWORD MinTickDelta = 2000;
-	assert(IsMainThread());
-	static DWORD lastTick = 0;
-	const DWORD curTick = GetTickCount();
-	const DWORD tickDelta = curTick - lastTick;
-	if (tickDelta < MinTickDelta)
-	{
-		// Too early
-		DTRACE(stdFormat(L"Canceled:TickDelta(%d) is too short.", tickDelta));
-		return;
-	}
-	lastTick = curTick;
+	//constexpr DWORD MinTickDelta = 2000;
+	//assert(IsMainThread());
+	//static DWORD lastTick = 0;
+	//const DWORD curTick = GetTickCount();
+	//const DWORD tickDelta = curTick - lastTick;
+	//if (tickDelta < MinTickDelta)
+	//{
+	//	// Too early
+	//	DTRACE(stdFormat(L"Canceled:TickDelta(%d) is too short.", tickDelta));
+	//	return;
+	//}
+	//lastTick = curTick;
 
 	// Does this lock file?
 	//if (IsFileOpen(filefull.c_str()))
 	//	return;
 
 
+	{
+		wstring message;
+		message += I18N(L"LastWrite Changed");
+		message += wstring() + L" '" + pDir + L"'";
+		message += L"\r\n";
 
-	wstring message;
-	message += I18N(L"LastWrite Changed");
-	message += wstring() + L" '" + pDir + L"'";
-	message += L"\r\n";
-	
-	message += stdFormat(I18N(L"Size=%d bytes"), wfd.nFileSizeLow);
-	message += L"\r\n";
+		message += stdFormat(I18N(L"Size=%d bytes"), wfd.nFileSizeLow);
+		message += L"\r\n";
 
-	message += file;
+		message += file;
+
+		gMessagePod.setMessage(move(message));
+	}
 
 	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
 
-	if (stdIsSamePath(stdGetDesktopDirectory(), pDir))
-	{
-		std::thread thd([&] {
-			Sleep(3 * 1000);
-			PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
-			});
-		thd.detach();
-	}
-
-	DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
+	std::thread afterrun([](HWND h, size_t messageId) {
+		Sleep(3 * 1000);
+		PostMessage(h, WM_APP_AFTER_NOTIFIED, (WPARAM)messageId, 0);
+		}, hWnd, gMessagePod.curID());
+	afterrun.detach();
 }
 
 UINT WM_TASKBARCREATED;
@@ -172,9 +196,10 @@ void OnCommand(HWND hWnd, WORD cmd)
 	case IDC_ABOUT:
 	{
 		tstring message;
-		message += APP_NAME L" " APP_VERSION;
+		message += APP_NAME L" v" + GetVersionString(stdGetModuleFileName().c_str(),3);
 		message += _T("\r\n\r\n");
-		message += I18N(L"Watching directories:\r\n");
+		message += I18N(L"Directories in monitor:");
+		message += L"\r\n";
 		for (auto&& dir : gdata.dirs_)
 		{
 			message += dir;
@@ -270,6 +295,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_APP_REFRESH_DESKTOP:
 		SHChangeNotify(0x8000000, 0x1000, 0, 0);
 		break;
+	case WM_APP_AFTER_NOTIFIED:
+		{
+			size_t thisMessageID = (size_t)wParam;
+			if (!gMessagePod.IsCurID(thisMessageID))
+				break;
+			wstring message = gMessagePod.getMessage(thisMessageID);
+			gMessagePod.clear();
+			// if (stdIsSamePath(stdGetDesktopDirectory(), pDir))
+			{
+				std::thread thd([&] {
+					Sleep(3 * 1000);
+					PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
+					});
+				thd.detach();
+			}
+			
+			DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
+		}
+		break;
 	case WM_COMMAND:
 		OnCommand(hWnd, LOWORD(wParam));
 		break;
@@ -320,8 +364,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		}
 		return 1;
 	}
-
-	gCurrentThreadId = GetCurrentThreadId();
 
 	CCommandLineParser parser;
 	bool isDesktop = false;

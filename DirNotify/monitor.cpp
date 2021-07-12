@@ -52,8 +52,8 @@ void InitMonitors()
 	RemoveTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY);
 	do
 	{
-		wstring trayMessage = stdFormat(I18N(L"Watching %d dirs | %s"),
-			gdata.dirs_.size(),
+		wstring trayMessage = stdFormat(L"%s | %s",
+			stdFormat(I18N(L"Watching %d dirs"), gdata.dirs_.size()).c_str(),
 			APP_NAME);
 
 		if (AddTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, trayMessage.c_str()))

@@ -12,3 +12,5 @@
 "'%s' is not a directory."="'%s' はディレクトリではありません。"
 "Size=%d bytes"="サイズ＝%dバイト"
 "&Open"="開く(&O)"
+"Watching %d dirs"="%d個のディレクトリを監視中"
+"Directories in monitor:"="監視中のディレクトリ："
