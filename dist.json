@@ -16,7 +16,7 @@
         }
     ],
     "gitrev": {
-    	"git": "C:/cygwin/bin/git.exe",
+    	"gits": ["C:/cygwin/bin/git.exe", "C:/local/msys2/usr/bin/git.exe"],
     	"gitdirs": [".", "../lsMisc"],
     	"outheader": "DirNotify/gitrev.h"
     },
