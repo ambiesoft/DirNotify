@@ -78,6 +78,9 @@
     <ClInclude Include="..\..\lsMisc\GetVersionString.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gitrev.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

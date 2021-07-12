@@ -10,6 +10,7 @@
 #include "../../lsMisc/CommandLineParser.h"
 #include "../../lsMisc/GetVersionString.h"
 
+#include "gitrev.h"
 #include "DirNotify.h"
 
 using namespace std;
@@ -354,6 +355,54 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	InitHighDPISupport();
 	i18nInitLangmap(hInstance, NULL, _T(""));
 
+	CCommandLineParser parser;
+	bool isDesktop = false;
+	parser.AddOption(L"-desktop", 0, &isDesktop,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Monitor Desktop directory"));
+
+	bool isHelp = false;
+	parser.AddOptionRange({ L"-h",L"--help",L"/h",L"/help" },
+		0,
+		&isHelp,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Show Help"));
+
+	bool isVersion = false;
+	parser.AddOptionRange({ L"-v",L"--version",L"/v",L"/version" },
+		0,
+		&isVersion,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Show Version"));
+
+	COption opDir(wstring(), ArgCount::ArgCount_Infinite,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Directories to monitor"));
+	parser.AddOption(&opDir);
+
+	parser.Parse();
+
+	if (parser.hadUnknownOption())
+	{
+		ExitFatal(I18N(L"Unknown Options:") + parser.getUnknowOptionStrings());
+	}
+	if (isHelp)
+	{
+		MessageBox(NULL, parser.getHelpMessage().c_str(), APP_NAME, MB_ICONINFORMATION);
+		return 0;
+	}
+	if (isVersion)
+	{
+		wstring message = APP_NAME L" v" + GetVersionString(stdGetModuleFileName().c_str(), 3);
+		message += L"\r\n\r\n";
+		message += L"GitRev:\r\n";
+		for (auto&& kv : GITREV::GetHashes())
+		{
+			message += toStdWstringFromUtf8(kv.first) + L"=" + toStdWstringFromUtf8(kv.second) + L"\r\n";
+		}
+		MessageBox(NULL, message.c_str(), APP_NAME, MB_ICONINFORMATION);
+		return 0;
+	}
 	if (!CheckDuplicateInstance())
 	{
 		if (sgHwnd == nullptr)
@@ -365,19 +414,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return 1;
 	}
 
-	CCommandLineParser parser;
-	bool isDesktop = false;
-	parser.AddOption(L"-desktop", 0, &isDesktop);
-
-	COption opDir(wstring(), ArgCount::ArgCount_Infinite);
-	parser.AddOption(&opDir);
-
-	parser.Parse();
-
-	if (parser.hadUnknownOption())
-	{
-		ExitFatal(I18N(L"Unknown Options:") + parser.getUnknowOptionStrings());
-	}
 	if (isDesktop)
 	{
 		gdata.dirs_.push_back(stdGetDesktopDirectory());

@@ -7,3 +7,5 @@ ipch/
 *.suo
 *.aps
 *.user
+DirNotify/gitrev.h
+

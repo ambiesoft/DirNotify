@@ -1,3 +1,6 @@
+2021/07/13 ver1.0.19
+Add GITREV
+
 2021/07/12 ver1.0.18
 Apply last notify only when succesive notify was given
 

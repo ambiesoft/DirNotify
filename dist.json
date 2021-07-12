@@ -15,6 +15,11 @@
             "platform": "x64"
         }
     ],
+    "gitrev": {
+    	"git": "C:/cygwin/bin/git.exe",
+    	"gitdirs": [".", "../lsMisc"],
+    	"outheader": "DirNotify/gitrev.h"
+    },
     "ShouldBeFiles": [
         "DirNotify.exe",
         "DirNotify.pdb",
