@@ -396,10 +396,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		wstring message = APP_NAME L" v" + GetVersionString(stdGetModuleFileName().c_str(), 3);
 		message += L"\r\n\r\n";
 		message += L"GitRev:\r\n";
-		for (auto&& kv : GITREV::GetHashes())
-		{
-			message += toStdWstringFromUtf8(kv.first) + L"=" + toStdWstringFromUtf8(kv.second) + L"\r\n";
-		}
+		message += stdStringReplace(GITREV::GetHashMessage(), L"\n", L"\r\n");
 		MessageBox(NULL, message.c_str(), APP_NAME, MB_ICONINFORMATION);
 		return 0;
 	}
