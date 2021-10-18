@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#include "../../lsMisc/CHandle.h"
+
 #include "DirNotify.h"
 
 
@@ -12,15 +15,15 @@ void __cdecl start_address(void * pvoid)
 	DASSERT(pvoid);
 	LPCWSTR pDir = (LPWSTR)pvoid;
 
-	HANDLE hDir = CreateFile(pDir,
+	CFileHandle dir(CreateFile(pDir,
 		GENERIC_READ,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // share
 		NULL, // security
 		OPEN_EXISTING, // disposition
 		FILE_FLAG_BACKUP_SEMANTICS,
 		NULL // template
-		);
-	if (INVALID_HANDLE_VALUE == hDir)
+	));
+	if (!dir)
 		ExitFatal(L"Failed to open directory.");
 
 	const int BUFFLEN = 4096;
@@ -28,14 +31,18 @@ void __cdecl start_address(void * pvoid)
 	DWORD dwLen;
 	while (true)
 	{
-		if (!ReadDirectoryChangesW(hDir,
+		if (!ReadDirectoryChangesW(dir,
 			buff,
 			BUFFLEN,
 			FALSE, // subtree
 			FILE_NOTIFY_CHANGE_LAST_WRITE,
 			&dwLen,
 			NULL, NULL))
-			ExitFatal(L"Failed to ReadDirectoryChangesW");
+		{
+			// ExitFatal(L"Failed to ReadDirectoryChangesW");
+			SendMessage(gdata.h_, WM_APP_DIRREMOVED, (WPARAM)pDir, (LPARAM)buff);
+			break;
+		}
 		SendMessage(gdata.h_, WM_APP_FILECHANGED, (WPARAM)pDir, (LPARAM)buff);
 	}
 }

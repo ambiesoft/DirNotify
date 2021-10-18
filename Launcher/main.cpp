@@ -38,7 +38,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	CCommandLineString cmd;
 	wstring dummy, args;
-	CHandle hProcess;
+	CKernelHandle hProcess;
 	cmd.ExplodeExeAndArg(GetCommandLine(), dummy, args);
 	if (!OpenCommon(NULL,
 		exe.c_str(),

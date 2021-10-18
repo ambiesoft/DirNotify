@@ -9,6 +9,7 @@
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
 #include "../../lsMisc/CommandLineParser.h"
 #include "../../lsMisc/GetVersionString.h"
+#include "../../lsMisc/CreateCompleteDirectory.h"
 
 #include "gitrev.h"
 #include "DirNotify.h"
@@ -122,6 +123,26 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		message += L"\r\n";
 
 		message += file;
+
+		gMessagePod.setMessage(move(message));
+	}
+
+	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
+
+	std::thread afterrun([](HWND h, size_t messageId) {
+		Sleep(3 * 1000);
+		PostMessage(h, WM_APP_AFTER_NOTIFIED, (WPARAM)messageId, 0);
+		}, hWnd, gMessagePod.curID());
+	afterrun.detach();
+}
+
+void OnDirRemoved(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
+{
+	{
+		wstring message;
+		message += I18N(L"Directory Removed");
+		message += wstring() + L" '" + pDir + L"'";
+		message += L"\r\n";
 
 		gMessagePod.setMessage(move(message));
 	}
@@ -293,6 +314,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_APP_FILECHANGED:
 		OnChanged(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
 		break;
+	case WM_APP_DIRREMOVED:
+		OnDirRemoved(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
+		break;
 	case WM_APP_REFRESH_DESKTOP:
 		SHChangeNotify(0x8000000, 0x1000, 0, 0);
 		break;
@@ -335,7 +359,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-CHandle hDupCheck;
+CKernelHandle hDupCheck;
 bool CheckDuplicateInstance()
 {
 	DASSERT(!hDupCheck);
@@ -426,6 +450,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	for (auto&& dir : gdata.dirs_)
 	{
+		if (PathFileExists(dir.c_str()) && !PathIsDirectory(dir.c_str()))
+		{
+			ExitFatal(stdFormat(I18N(L"'%s' is a file. A directory must be provided."), dir.c_str()));
+		}
 		if (!PathIsDirectory(dir.c_str()))
 		{
 			if (IDYES == MessageBox(NULL,
@@ -433,7 +461,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 				APP_NAME,
 				MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
 			{
-				CreateDirectory(dir.c_str(), NULL);
+				CreateCompleteDirectory(dir.c_str());
 			}
 		}
 	}

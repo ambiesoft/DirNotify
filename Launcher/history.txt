@@ -1,3 +1,6 @@
+2021/10/18 v1.0.20
+Create a directory completely if not exits after user's confirmation
+
 2021/07/13 ver1.0.19
 Add GITREV
 
