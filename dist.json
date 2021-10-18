@@ -18,7 +18,8 @@
     "gitrev": {
     	"gits": ["C:/cygwin/bin/git.exe", "C:/local/msys2/usr/bin/git.exe"],
     	"gitdirs": [".", "../lsMisc"],
-    	"outheader": "DirNotify/gitrev.h"
+    	"outheader": "DirNotify/gitrev.h",
+    	"char": "wchar"
     },
     "ShouldBeFiles": [
         "DirNotify.exe",
