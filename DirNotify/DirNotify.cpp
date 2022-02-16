@@ -399,7 +399,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Show Version"));
 
-	COption opDir(wstring(), ArgCount::ArgCount_Infinite,
+	COption opDir(wstring(), ArgCount::ArgCount_ZeroToInfinite,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Directories to monitor"));
 	parser.AddOption(&opDir);
