@@ -19,6 +19,7 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 #include <process.h>
+#include <Mmsystem.h>
 
 #include <assert.h>
 #include <string>

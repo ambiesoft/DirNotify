@@ -14,6 +14,9 @@
 #include "gitrev.h"
 #include "DirNotify.h"
 
+// PlaySound
+#pragma comment(lib,"Winmm.lib")
+
 using namespace std;
 using namespace Ambiesoft;
 using namespace Ambiesoft::stdosd;
@@ -337,6 +340,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			
 			DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
+			if (gdata.isSound_)
+			{
+				PlaySound(gdata.wavFile_.c_str(), nullptr, SND_FILENAME | SND_ASYNC);
+			}
 		}
 		break;
 	case WM_COMMAND:
@@ -379,11 +386,25 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	InitHighDPISupport();
 	i18nInitLangmap(hInstance, NULL, _T(""));
 
-	CCommandLineParser parser;
+	CCommandLineParser parser(I18N(L"Notify of file changes"), APP_NAME);
+	parser.setStrict();
+
 	bool isDesktop = false;
 	parser.AddOption(L"-desktop", 0, &isDesktop,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Monitor Desktop directory"));
+
+	parser.AddOptionRange({ L"-s",L"--sound"},
+		ArgCount::ArgCount_One,
+		&gdata.isSound_,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Plays sound on notification. '0', 'off' or 'no' to disable it."));
+
+	parser.AddOptionRange({ L"-w",L"--wavfile" },
+		ArgCount::ArgCount_One,
+		&gdata.wavFile_,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Wav file to play sound on notification"));
 
 	bool isHelp = false;
 	parser.AddOptionRange({ L"-h",L"--help",L"/h",L"/help" },
@@ -404,7 +425,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		I18N(L"Directories to monitor"));
 	parser.AddOption(&opDir);
 
-	parser.Parse();
+	try
+	{
+		parser.Parse();
+	}
+	catch (illegal_value_type_error<wstring,bool>& ex)
+	{
+		ExitFatal(ex.wwhat());
+	}
 
 	if (parser.hadUnknownOption())
 	{

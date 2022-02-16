@@ -14,6 +14,8 @@ enum {
 struct GlobalData
 {
 	HWND h_;
+	bool isSound_;
+	std::wstring wavFile_;
 	std::vector<std::wstring> dirs_;
 };
 
