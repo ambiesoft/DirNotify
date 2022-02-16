@@ -1,5 +1,6 @@
 2022/02/16 v1.0.21
 Added: Plays sound on notification
+Fixed: if wavfile of commandline contains environmental variables, it failed to play sound
 
 2021/10/18 v1.0.20
 Create a directory completely if not exits after user's confirmation

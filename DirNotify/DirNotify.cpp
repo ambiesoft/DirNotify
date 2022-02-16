@@ -463,6 +463,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return 1;
 	}
 
+	gdata.wavFile_ = stdExpandEnvironmentStrings(gdata.wavFile_);
+
 	if (isDesktop)
 	{
 		gdata.dirs_.push_back(stdGetDesktopDirectory());
