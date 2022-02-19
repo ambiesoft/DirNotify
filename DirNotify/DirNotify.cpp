@@ -458,7 +458,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			ExitFatal(I18N(L"This is duplicated instance but failed to find previous one."));
 		else
 		{
-			PostMessage(sgHwnd, WM_APP_ACTIVATE, 0, 0);
+			// PostMessage(sgHwnd, WM_APP_ACTIVATE, 0, 0);
+			MessageBox(NULL, I18N(L"Another instance is already running."), APP_NAME, MB_ICONWARNING);
 		}
 		return 1;
 	}

@@ -14,3 +14,4 @@
 "&Open"="開く(&O)"
 "Watching %d dirs"="%d個のディレクトリを監視中"
 "Directories in monitor:"="監視中のディレクトリ："
+"Another instance is already running."="他のインスタンスがすでに起動しています。"
