@@ -1,3 +1,6 @@
+2022/02/20 v1.0.22
+Added: CommonControl v6 pragma
+
 2022/02/16 v1.0.21
 Added: Plays sound on notification
 Fixed: if wavfile of commandline contains environmental variables, it failed to play sound
