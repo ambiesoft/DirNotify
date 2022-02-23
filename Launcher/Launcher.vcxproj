@@ -67,7 +67,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)history.txt" "$(TargetDir)"</Command>
+      <Command>copy "$(ProjectDir)history.txt" "$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -89,7 +90,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)history.txt" "$(TargetDir)"</Command>
+      <Command>copy "$(ProjectDir)history.txt" "$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -23,7 +23,7 @@ using namespace Ambiesoft::stdosd;
 
 HICON ghTrayIcon;
 GlobalData gdata;
-vector<wstring> gNotifyHistory;
+vector<pair<time_t,wstring>> gNotifyHistory;
 CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
 DWORD gMainThreadId = GetCurrentThreadId();
 bool IsMainThread()
@@ -251,7 +251,15 @@ void OnCommand(HWND hWnd, WORD cmd)
 		{
 			for (size_t i = 0; i < gNotifyHistory.size(); ++i)
 			{
-				message << gNotifyHistory[i] << L"\r\n";
+				time_t time = gNotifyHistory[i].first;
+				//std::tm tm;
+				//localtime_s(&tm, &time);
+				wchar_t buffer[128] = { 0 };
+				_wctime_s(buffer, _countof(buffer), &time);
+				// Format: Mo, 15.06.2009 20:20:00
+				// std::wcsftime(buffer, _countof(buffer), L"%a, %d.%m.%Y %H:%M:%S", &tm);
+				message << buffer;
+				message << gNotifyHistory[i].second << L"\r\n";
 				message << separator << L"\r\n";
 			}
 		}
@@ -375,7 +383,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				thd.detach();
 			}
 			
-			gNotifyHistory.push_back(message);
+			gNotifyHistory.push_back(pair<time_t,wstring>(time(nullptr), message));
 			DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
 			if (gdata.isSound_)
 			{
