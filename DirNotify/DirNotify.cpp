@@ -23,6 +23,7 @@ using namespace Ambiesoft::stdosd;
 
 HICON ghTrayIcon;
 GlobalData gdata;
+vector<wstring> gNotifyHistory;
 CSessionGlobalMemory<HWND> sgHwnd("DirNotifyWindow");
 DWORD gMainThreadId = GetCurrentThreadId();
 bool IsMainThread()
@@ -192,6 +193,7 @@ HMENU CreateTrayPopupMenu()
 	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
 
 	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_ABOUT, (L"&About..."));
+	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_NOTIFICATION_LOG, (L"&Notification log..."));
 	AppendMenu(hSubMenu, MF_BYCOMMAND, IDC_SHOWHELP, (L"&Help..."));
 	AppendMenu(hSubMenu, MF_SEPARATOR, 0, NULL);
 
@@ -234,6 +236,40 @@ void OnCommand(HWND hWnd, WORD cmd)
 			message.c_str(),
 			APP_NAME,
 			MB_ICONINFORMATION);
+	}
+	break;
+
+	case IDC_NOTIFICATION_LOG:
+	{
+		wstringstream message;
+		wstring separator = L"---------------------";
+		if (gNotifyHistory.empty())
+		{
+			message << I18N(L"No notifications");
+		}
+		else
+		{
+			for (size_t i = 0; i < gNotifyHistory.size(); ++i)
+			{
+				message << gNotifyHistory[i] << L"\r\n";
+				message << separator << L"\r\n";
+			}
+		}
+		wstring shownotifyexe = stdCombinePath(stdGetParentDirectory(stdGetModuleFileName()), L"..\\ShowFlexibleMessageBox\\ShowFlexibleMessageBox.exe");
+		if (!stdFileExists(shownotifyexe))
+		{
+			MessageBox(gdata.h_,
+				stdFormat(I18N(L"'%s' was not found."), shownotifyexe.c_str()).c_str(),
+				APP_NAME,
+				MB_ICONWARNING);
+		}
+		else
+		{
+			string command = UrlEncodeStd(toStdUtf8String(message.str()).c_str());
+			OpenCommon(gdata.h_,
+				shownotifyexe.c_str(),
+				toStdWstringFromUtf8(command).c_str());
+		}
 	}
 	break;
 
@@ -339,6 +375,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				thd.detach();
 			}
 			
+			gNotifyHistory.push_back(message);
 			DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
 			if (gdata.isSound_)
 			{
