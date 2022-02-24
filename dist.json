@@ -30,7 +30,12 @@
         "x64\\lang\\jpn.txt",
         "x86\\DirNotify.exe",
         "x86\\DirNotify.pdb",
-        "x86\\lang\\jpn.txt"
+        "x86\\lang\\jpn.txt",
+	"ShowFlexibleMessageBox\\FlexibleMessageBox.pdb",
+	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.exe.config",
+	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.pdb",
+	"ShowFlexibleMessageBox\\FlexibleMessageBox.dll",
+	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.exe"
     ],
     "TotalFileCount": "exact",
     "archivedir": "C:\\Linkout",
