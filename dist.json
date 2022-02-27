@@ -35,7 +35,11 @@
 	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.exe.config",
 	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.pdb",
 	"ShowFlexibleMessageBox\\FlexibleMessageBox.dll",
-	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.exe"
+	"ShowFlexibleMessageBox\\ShowFlexibleMessageBox.exe",
+	"ShowFlexibleMessageBox\\CommandLine.dll",
+	"ShowFlexibleMessageBox\\history.txt",
+	"ShowFlexibleMessageBox\\CommandLine.xml",
+	"ShowFlexibleMessageBox\\acknowledgements.txt"
     ],
     "TotalFileCount": "exact",
     "archivedir": "C:\\Linkout",
