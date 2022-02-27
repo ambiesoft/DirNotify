@@ -39,7 +39,8 @@
 	"ShowFlexibleMessageBox\\CommandLine.dll",
 	"ShowFlexibleMessageBox\\history.txt",
 	"ShowFlexibleMessageBox\\CommandLine.xml",
-	"ShowFlexibleMessageBox\\acknowledgements.txt"
+	"ShowFlexibleMessageBox\\acknowledgements.txt",
+	"ShowFlexibleMessageBox\\FlexibleMessageBox.credit"
     ],
     "TotalFileCount": "exact",
     "archivedir": "C:\\Linkout",
