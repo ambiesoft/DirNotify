@@ -1,3 +1,6 @@
+2022/02/27 v1.0.25
+Notification message will be shown in Taskbar (Only library update)
+
 2022/02/27 v1.0.24
 Added Caption on Notification log
 
