@@ -1,3 +1,6 @@
+2022/02/27 v1.0.24
+Added Caption on Notification log
+
 2022/02/24 v1.0.23
 Added: Notification log
 

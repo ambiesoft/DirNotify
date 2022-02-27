@@ -241,6 +241,7 @@ void OnCommand(HWND hWnd, WORD cmd)
 
 	case IDC_NOTIFICATION_LOG:
 	{
+		wstring caption = stdFormat(L"%s - %s", I18N(L"Notification log"), APP_NAME);
 		wstringstream message;
 		wstring separator = L"---------------------";
 		if (gNotifyHistory.empty())
@@ -273,10 +274,12 @@ void OnCommand(HWND hWnd, WORD cmd)
 		}
 		else
 		{
-			string command = UrlEncodeStd(toStdUtf8String(message.str()).c_str());
+			string commandLine = stdFormat("-t \"%s\" \"%s\"",
+				UrlEncodeStd(toStdUtf8String(caption).c_str()).c_str(),
+				UrlEncodeStd(toStdUtf8String(message.str()).c_str()).c_str());
 			OpenCommon(gdata.h_,
 				shownotifyexe.c_str(),
-				toStdWstringFromUtf8(command).c_str());
+				toStdWstringFromUtf8(commandLine).c_str());
 		}
 	}
 	break;
