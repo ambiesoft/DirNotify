@@ -67,8 +67,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)history.txt" "$(TargetDir)"
-C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"</Command>
+      <Command>C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)history.txt" "/to:$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)acknowledgements.txt" "/to:$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(TargetDir)"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,8 +93,11 @@ C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(Ta
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)history.txt" "$(TargetDir)"
-C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"</Command>
+      <Command>C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)history.txt" "/to:$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)acknowledgements.txt" "/to:$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(TargetDir)"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -122,6 +128,7 @@ C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(Ta
     <Image Include="icon1.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="acknowledgements.txt" />
     <Text Include="history.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

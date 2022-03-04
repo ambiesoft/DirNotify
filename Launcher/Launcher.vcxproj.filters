@@ -71,5 +71,8 @@
     <Text Include="history.txt">
       <Filter>4 dist</Filter>
     </Text>
+    <Text Include="acknowledgements.txt">
+      <Filter>4 dist</Filter>
+    </Text>
   </ItemGroup>
 </Project>

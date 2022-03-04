@@ -1,3 +1,6 @@
+2022/03/04 v1.0.26
+Add chime.wav for ringing
+
 2022/02/27 v1.0.25
 Notification message will be shown in Taskbar (Only library update)
 

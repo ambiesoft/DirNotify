@@ -477,7 +477,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		parser.Parse();
 	}
-	catch (illegal_value_type_error<wstring,bool>& ex)
+	catch (illegal_value_type_error<wstring, bool>& ex)
+	{
+		ExitFatal(ex.wwhat());
+	}
+	catch (no_value_error<wstring>& ex)
 	{
 		ExitFatal(ex.wwhat());
 	}
@@ -512,8 +516,20 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return 1;
 	}
 
-	gdata.wavFile_ = stdExpandEnvironmentStrings(gdata.wavFile_);
-
+	if (gdata.wavFile_.empty())
+		gdata.wavFile_ = stdCombinePath(stdGetParentDirectory(stdGetModuleFileName()), L"..\\chime.wav");
+	else
+		gdata.wavFile_ = stdExpandEnvironmentStrings(gdata.wavFile_);
+	if (gdata.isSound_)
+	{
+		if (!stdFileExists(gdata.wavFile_))
+		{
+			MessageBox(NULL, 
+				stdFormat(I18N(L"Wave file '%s' does not exit."), gdata.wavFile_.c_str()).c_str(),
+				APP_NAME, MB_ICONWARNING);
+			return 1;
+		}
+	}
 	if (isDesktop)
 	{
 		gdata.dirs_.push_back(stdGetDesktopDirectory());
