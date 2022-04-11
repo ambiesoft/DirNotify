@@ -274,12 +274,23 @@ void OnCommand(HWND hWnd, WORD cmd)
 		}
 		else
 		{
-			string commandLine = stdFormat("-t \"%s\" \"%s\"",
+			string encodedMessage = UrlEncodeStd(toStdUtf8String(message.str()).c_str());
+			CDynamicSessionGlobalMemory sgDyn("dyn", (size_t32)encodedMessage.size());
+			{
+				sgDyn.set((const unsigned char*)encodedMessage.data());
+			}
+
+			string commandLine = stdFormat("-t \"%s\" -m \"%s\"",
 				UrlEncodeStd(toStdUtf8String(caption).c_str()).c_str(),
-				UrlEncodeStd(toStdUtf8String(message.str()).c_str()).c_str());
+				sgDyn.getMapName().c_str());
+				
+			CKernelHandle process;
 			OpenCommon(gdata.h_,
 				shownotifyexe.c_str(),
-				toStdWstringFromUtf8(commandLine).c_str());
+				toStdWstringFromUtf8(commandLine).c_str(),
+				nullptr,
+				&process);
+			WaitForInputIdle(process, INFINITE);
 		}
 	}
 	break;
