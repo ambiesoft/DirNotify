@@ -81,43 +81,31 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		text.push_back(L'\0');
 		file = (LPCWSTR)&text[0];
 	}
-
+	wstring newFile;
+	if(fni->NextEntryOffset != 0)
+	{
+		fni = (FILE_NOTIFY_INFORMATION*) ((BYTE*)fni + fni->NextEntryOffset);
+		vector<WCHAR> text;
+		text.assign(fni->FileName, fni->FileName + fni->FileNameLength / sizeof(WCHAR));
+		text.push_back(L'\0');
+		newFile = (LPCWSTR)&text[0];
+	}
 	const wstring filefull = stdCombinePath(pDir, file);
-
-	WIN32_FIND_DATA wfd;
-	if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
+	if (stdFileExists(filefull))
 	{
-		DTRACE(L"FindFirstFile failed");
-		return;
-	}
-	// skip if file size is zero
-	if (wfd.nFileSizeHigh == 0 && wfd.nFileSizeLow == 0)
-	{
-		DTRACE(stdFormat(L"Canceled '%s':File size is zero", filefull.c_str()));
-		return;
-	}
+		WIN32_FIND_DATA wfd;
+		if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
+		{
+			DTRACE(L"FindFirstFile failed");
+			return;
+		}
+		// skip if file size is zero
+		if (wfd.nFileSizeHigh == 0 && wfd.nFileSizeLow == 0)
+		{
+			DTRACE(stdFormat(L"Canceled '%s':File size is zero", filefull.c_str()));
+			return;
+		}
 
-	// check as if notify is too early
-	DTRACE(stdFormat(L"'%s' has been changed.", filefull.c_str()));
-	//constexpr DWORD MinTickDelta = 2000;
-	//assert(IsMainThread());
-	//static DWORD lastTick = 0;
-	//const DWORD curTick = GetTickCount();
-	//const DWORD tickDelta = curTick - lastTick;
-	//if (tickDelta < MinTickDelta)
-	//{
-	//	// Too early
-	//	DTRACE(stdFormat(L"Canceled:TickDelta(%d) is too short.", tickDelta));
-	//	return;
-	//}
-	//lastTick = curTick;
-
-	// Does this lock file?
-	//if (IsFileOpen(filefull.c_str()))
-	//	return;
-
-
-	{
 		wstring message;
 		message += I18N(L"LastWrite Changed");
 		message += wstring() + L" '" + pDir + L"'";
@@ -127,9 +115,32 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		message += L"\r\n";
 
 		message += file;
-
 		gMessagePod.setMessage(move(message));
 	}
+	else
+	{
+		if(newFile.empty())
+		{
+			wstringstream message;
+			if (stdDirectoryExists(filefull))
+				message << I18N(L"Dir created");
+			else
+				message << I18N(L"Dir removed");
+			message << L"\r\n";
+			message << filefull;
+			gMessagePod.setMessage(message.str());
+		}
+		else
+		{
+			wstringstream message;
+			message << I18N(L"Dir name Changed");
+			message << L"\r\n";
+			message << file << L" -> " << newFile;
+			gMessagePod.setMessage(message.str());
+		}
+	}
+
+
 
 	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
 
@@ -227,9 +238,9 @@ void OnCommand(HWND hWnd, WORD cmd)
 		message += _T("\r\n\r\n");
 		message += I18N(L"Directories in monitor:");
 		message += L"\r\n";
-		for (auto&& dir : gdata.dirs_)
+		for (auto&& mis : gdata.monitorInfos_)
 		{
-			message += dir;
+			message += mis.dir_;
 			message += L"\r\n";
 		}
 		MessageBox(NULL,
@@ -448,10 +459,31 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	CCommandLineParser parser(I18N(L"Notify of file changes"), APP_NAME);
 	parser.setStrict();
 
-	bool isDesktop = false;
-	parser.AddOption(L"-desktop", 0, &isDesktop,
+	bool isMonitorFileOfDesktop = false;
+	bool isMonitorDirOfDesktop = false;
+	bool isMonitorFileOfDesktopAndSub = false;
+	bool isMonitorDirOfDesktopAndSub = false;
+
+	parser.AddOptionRange({ L"-df", L"--desktop-file" },
+		ArgCount::ArgCount_Zero,
+		& isMonitorFileOfDesktop,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Monitor Desktop directory"));
+		I18N(L"Monitor file of Desktop"));
+	parser.AddOptionRange({ L"-dd", L"--desktop-directory" },
+		ArgCount::ArgCount_Zero,
+		& isMonitorDirOfDesktop,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Monitor directory of Desktop"));
+	parser.AddOptionRange({ L"-dfs", L"--desktop-file-subtree" },
+		ArgCount::ArgCount_Zero,
+		& isMonitorFileOfDesktopAndSub,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Monitor file of Desktop and its subdirectory"));
+	parser.AddOptionRange({ L"-dds", L"--desktop-directory-subtree" },
+		ArgCount::ArgCount_Zero,
+		& isMonitorDirOfDesktopAndSub,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Monitor directory of Desktop and its subdirectory"));
 
 	parser.AddOptionRange({ L"-s",L"--sound"},
 		ArgCount::ArgCount_One,
@@ -479,10 +511,17 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Show Version"));
 
-	COption opDir(wstring(), ArgCount::ArgCount_ZeroToInfinite,
+	COption opMonitorFile(L"-mf", 
+		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Directories to monitor"));
-	parser.AddOption(&opDir);
+	parser.AddOption(&opMonitorFile);
+
+	COption opMonitorDir(L"-md", 
+		ArgCount::ArgCount_One,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Directories to monitor"));
+	parser.AddOption(&opMonitorDir);
 
 	try
 	{
@@ -541,41 +580,69 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			return 1;
 		}
 	}
-	if (isDesktop)
+	if (isMonitorFileOfDesktop || isMonitorDirOfDesktop ||
+		isMonitorFileOfDesktopAndSub || isMonitorDirOfDesktopAndSub)
 	{
-		gdata.dirs_.push_back(stdGetDesktopDirectory());
+		MonitorInfo mi;
+		if(isMonitorFileOfDesktop)
+			mi.monitorFile_ = true;
+		if (isMonitorDirOfDesktop)
+			mi.monitorDir_ = true;
+		if (isMonitorFileOfDesktopAndSub)
+		{
+			mi.monitorFile_ = true;
+			mi.monitorSub_ = true;
+		}
+		if (isMonitorDirOfDesktopAndSub)
+		{
+			mi.monitorDir_ = true;
+			mi.monitorSub_ = true;
+		}
+		mi.dir_ = stdGetDesktopDirectory();
+		gdata.monitorInfos_.push_back(mi);
 	}
-	for (size_t i = 0; i < opDir.getValueCount(); ++i)
+	for (size_t i = 0; i < opMonitorFile.getValueCount(); ++i)
 	{
-		gdata.dirs_.push_back(stdExpandEnvironmentStrings(opDir.getValue(i)));
+		MonitorInfo mi;
+		mi.monitorFile_ = true;
+		mi.dir_ = stdExpandEnvironmentStrings(opMonitorFile.getValue(i));
+		gdata.monitorInfos_.push_back(mi);
 	}
-	if (gdata.dirs_.empty())
+	for (size_t i = 0; i < opMonitorDir.getValueCount(); ++i)
+	{
+		MonitorInfo mi;
+		mi.monitorDir_ = true;
+		mi.dir_ = stdExpandEnvironmentStrings(opMonitorFile.getValue(i));
+		gdata.monitorInfos_.push_back(mi);
+	}
+
+	if (gdata.monitorInfos_.empty())
 	{
 		ExitFatal(I18N(L"No dirs"));
 	}
 
-	for (auto&& dir : gdata.dirs_)
+	for (auto&& mi : gdata.monitorInfos_)
 	{
-		if (PathFileExists(dir.c_str()) && !PathIsDirectory(dir.c_str()))
+		if (PathFileExists(mi.dir_.c_str()) && !PathIsDirectory(mi.dir_.c_str()))
 		{
-			ExitFatal(stdFormat(I18N(L"'%s' is a file. A directory must be provided."), dir.c_str()));
+			ExitFatal(stdFormat(I18N(L"'%s' is a file. A directory must be provided."), mi.dir_.c_str()));
 		}
-		if (!PathIsDirectory(dir.c_str()))
+		if (!PathIsDirectory(mi.dir_.c_str()))
 		{
 			if (IDYES == MessageBox(NULL,
-				stdFormat(I18N(L"Directory '%s' does not exist. Do you want to create it?"), dir.c_str()).c_str(),
+				stdFormat(I18N(L"Directory '%s' does not exist. Do you want to create it?"), mi.dir_.c_str()).c_str(),
 				APP_NAME,
 				MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
 			{
-				CreateCompleteDirectory(dir.c_str());
+				CreateCompleteDirectory(mi.dir_.c_str());
 			}
 		}
 	}
-	for (auto&& dir : gdata.dirs_)
+	for (auto&& mi : gdata.monitorInfos_)
 	{
-		if (!PathIsDirectory(dir.c_str()))
+		if (!PathIsDirectory(mi.dir_.c_str()))
 		{
-			ExitFatal(stdFormat(I18N(L"'%s' is not a directory."), dir.c_str()));
+			ExitFatal(stdFormat(I18N(L"'%s' is not a directory."), mi.dir_.c_str()));
 		}
 	}
 
@@ -590,7 +657,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)ghTrayIcon);
 
 	InitMonitors();
-
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))

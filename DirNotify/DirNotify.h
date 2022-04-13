@@ -11,12 +11,21 @@ enum {
 	WM_APP_DIRREMOVED,
 };
 
+struct MonitorInfo
+{
+	bool monitorFile_;
+	bool monitorDir_;
+	bool monitorSub_;
+	std::wstring dir_;
+
+	MonitorInfo() : monitorFile_(false),monitorDir_(false),monitorSub_(false) {	}
+};
 struct GlobalData
 {
 	HWND h_;
 	bool isSound_;
 	std::wstring wavFile_;
-	std::vector<std::wstring> dirs_;
+	std::vector<MonitorInfo> monitorInfos_;
 };
 
 struct ThreadData
@@ -27,7 +36,7 @@ struct ThreadData
 void ExitFatal(LPCTSTR pError, DWORD dwLE = GetLastError());
 void ExitFatal(const std::wstring& error, DWORD dwLE = GetLastError());
 void InitMonitors();
-HANDLE InitMonitor(LPCWSTR pDir);
+HANDLE InitMonitor(MonitorInfo* pMI);
 
 extern HICON ghTrayIcon;
 extern GlobalData gdata;
