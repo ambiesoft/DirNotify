@@ -511,17 +511,29 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Show Version"));
 
-	COption opMonitorFile(L"-mf", 
+	COption opMonitorFile(L"-mf",
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Directories to monitor"));
+		I18N(L"Directory to monitor file"));
 	parser.AddOption(&opMonitorFile);
 
-	COption opMonitorDir(L"-md", 
+	COption opMonitorDir(L"-md",
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Directories to monitor"));
+		I18N(L"Directory to monitor directory"));
 	parser.AddOption(&opMonitorDir);
+
+	COption opMonitorFileSub(L"-mfs",
+		ArgCount::ArgCount_One,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Directory and its subdirectory to monitor file"));
+	parser.AddOption(&opMonitorFileSub);
+
+	COption opMonitorDirSub(L"-mds",
+		ArgCount::ArgCount_One,
+		ArgEncodingFlags::ArgEncodingFlags_Default,
+		I18N(L"Directory and its subdirectory to monitor directory"));
+	parser.AddOption(&opMonitorDirSub);
 
 	try
 	{
@@ -601,6 +613,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		mi.dir_ = stdGetDesktopDirectory();
 		gdata.monitorInfos_.push_back(mi);
 	}
+
 	for (size_t i = 0; i < opMonitorFile.getValueCount(); ++i)
 	{
 		MonitorInfo mi;
@@ -612,7 +625,23 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		MonitorInfo mi;
 		mi.monitorDir_ = true;
-		mi.dir_ = stdExpandEnvironmentStrings(opMonitorFile.getValue(i));
+		mi.dir_ = stdExpandEnvironmentStrings(opMonitorDir.getValue(i));
+		gdata.monitorInfos_.push_back(mi);
+	}
+	for (size_t i = 0; i < opMonitorFileSub.getValueCount(); ++i)
+	{
+		MonitorInfo mi;
+		mi.monitorFile_ = true;
+		mi.monitorSub_ = true;
+		mi.dir_ = stdExpandEnvironmentStrings(opMonitorFileSub.getValue(i));
+		gdata.monitorInfos_.push_back(mi);
+	}
+	for (size_t i = 0; i < opMonitorDirSub.getValueCount(); ++i)
+	{
+		MonitorInfo mi;
+		mi.monitorDir_ = true;
+		mi.monitorSub_ = true;
+		mi.dir_ = stdExpandEnvironmentStrings(opMonitorDirSub.getValue(i));
 		gdata.monitorInfos_.push_back(mi);
 	}
 
