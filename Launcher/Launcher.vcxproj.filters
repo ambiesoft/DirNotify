@@ -13,8 +13,11 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="4 dist">
+    <Filter Include="5 dist">
       <UniqueIdentifier>{7ae5ef0a-3df7-48d9-8104-bffc7ec021b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="4 lang">
+      <UniqueIdentifier>{e1c55f19-784b-4993-b5c5-69c2b16bcc13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +34,15 @@
       <Filter>2 Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\lsMisc\OpenCommon.cpp">
+      <Filter>2 Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lsMisc\I18N.cpp">
+      <Filter>2 Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lsMisc\DebugMacro.cpp">
+      <Filter>2 Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lsMisc\GetLastErrorString.cpp">
       <Filter>2 Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,6 +68,15 @@
     <ClInclude Include="..\..\lsMisc\CHandle.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\lsMisc\I18N.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lsMisc\DebugMacro.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lsMisc\GetLastErrorString.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Launcher.rc">
@@ -69,10 +90,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="history.txt">
-      <Filter>4 dist</Filter>
+      <Filter>5 dist</Filter>
     </Text>
     <Text Include="acknowledgements.txt">
-      <Filter>4 dist</Filter>
+      <Filter>5 dist</Filter>
+    </Text>
+    <Text Include="lang\jpn.txt">
+      <Filter>4 lang</Filter>
     </Text>
   </ItemGroup>
 </Project>

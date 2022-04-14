@@ -1,0 +1,3 @@
+﻿"TEST"="The Test Is OK"
+"'%s' does not exit"="'%s' は存在しません"
+"Failed to open '%s'"="'%s' が開けませんでした"

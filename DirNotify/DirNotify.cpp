@@ -138,8 +138,6 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		}
 	}
 
-
-
 	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
 
 	std::thread afterrun([](HWND h, size_t messageId) {
@@ -170,9 +168,8 @@ void OnDirRemoved(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 }
 
 UINT WM_TASKBARCREATED;
-
-
 vector<wstring> gMenuFiles;
+
 HMENU CreateFileMenu()
 {
 	HMENU hSubMenu = CreatePopupMenu();

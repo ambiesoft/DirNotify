@@ -71,7 +71,9 @@
 C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)acknowledgements.txt" "/to:$(TargetDir)"
 C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"
 C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(TargetDir)"
-</Command>
+
+mkdir "$(TargetDir)lang"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)lang\jpn.txt" "/to:$(TargetDir)lang\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,10 +99,15 @@ C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(Tar
 C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)acknowledgements.txt" "/to:$(TargetDir)"
 C:\LegacyPrograms\FFC\FFC.exe /t12 "C:\Linkout\ShowFlexibleMessageBox" /to:"$(TargetDir)"
 C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(TargetDir)"
-</Command>
+
+mkdir "$(TargetDir)lang"
+C:\LegacyPrograms\FFC\FFC.exe /t12 "$(ProjectDir)lang\jpn.txt" "/to:$(TargetDir)lang\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lsMisc\DebugMacro.cpp" />
+    <ClCompile Include="..\..\lsMisc\GetLastErrorString.cpp" />
+    <ClCompile Include="..\..\lsMisc\I18N.cpp" />
     <ClCompile Include="..\..\lsMisc\Is64.cpp" />
     <ClCompile Include="..\..\lsMisc\OpenCommon.cpp" />
     <ClCompile Include="..\..\lsMisc\stdosd\stdosd.cpp" />
@@ -115,6 +122,9 @@ C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(Tar
   <ItemGroup>
     <ClInclude Include="..\..\lsMisc\CHandle.h" />
     <ClInclude Include="..\..\lsMisc\CommandLineString.h" />
+    <ClInclude Include="..\..\lsMisc\DebugMacro.h" />
+    <ClInclude Include="..\..\lsMisc\GetLastErrorString.h" />
+    <ClInclude Include="..\..\lsMisc\I18N.h" />
     <ClInclude Include="..\..\lsMisc\Is64.h" />
     <ClInclude Include="..\..\lsMisc\OpenCommon.h" />
     <ClInclude Include="..\..\lsMisc\stdosd\stdosd.h" />
@@ -130,6 +140,7 @@ C:\LegacyPrograms\FFC\FFC.exe /t12 "$(SolutionDir)Launcher\chime.wav" /to:"$(Tar
   <ItemGroup>
     <Text Include="acknowledgements.txt" />
     <Text Include="history.txt" />
+    <Text Include="lang\jpn.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
