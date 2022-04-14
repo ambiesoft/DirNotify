@@ -27,6 +27,7 @@
         "history.txt",
 		"acknowledgements.txt",
 		"chime.wav",
+		"lang\\jpn.txt",
 	    "x64\\DirNotify.exe",
 	    "x64\\DirNotify.pdb",
 	    "x64\\lang\\jpn.txt",
