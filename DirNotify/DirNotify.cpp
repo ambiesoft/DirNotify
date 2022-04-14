@@ -123,9 +123,9 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		{
 			wstringstream message;
 			if (stdDirectoryExists(filefull))
-				message << I18N(L"Dir created");
+				message << I18N(L"Directory Created");
 			else
-				message << I18N(L"Dir removed");
+				message << I18N(L"Directory Removed");
 			message << L"\r\n";
 			message << filefull;
 			gMessagePod.setMessage(message.str());
@@ -133,7 +133,7 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		else
 		{
 			wstringstream message;
-			message << I18N(L"Dir name Changed");
+			message << I18N(L"Directory Changed");
 			message << L"\r\n";
 			message << file << L" -> " << newFile;
 			gMessagePod.setMessage(message.str());
@@ -456,7 +456,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	InitHighDPISupport();
 	i18nInitLangmap(hInstance, NULL, _T(""));
 
-	CCommandLineParser parser(I18N(L"Notify of file changes"), APP_NAME);
+	CCommandLineParser parser(I18N(L"Notification of file/directory changes"), APP_NAME);
 	parser.setStrict();
 
 	bool isMonitorFileOfDesktop = false;
@@ -468,22 +468,22 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		ArgCount::ArgCount_Zero,
 		& isMonitorFileOfDesktop,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Monitor file of Desktop"));
+		I18N(L"Monitor Files of Desktop"));
 	parser.AddOptionRange({ L"-dd", L"--desktop-directory" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorDirOfDesktop,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Monitor directory of Desktop"));
+		I18N(L"Monitor Directories of Desktop"));
 	parser.AddOptionRange({ L"-dfs", L"--desktop-file-subtree" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorFileOfDesktopAndSub,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Monitor file of Desktop and its subdirectory"));
+		I18N(L"Monitor Files of Desktop and its subdirectories"));
 	parser.AddOptionRange({ L"-dds", L"--desktop-directory-subtree" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorDirOfDesktopAndSub,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Monitor directory of Desktop and its subdirectory"));
+		I18N(L"Monitor Directories of Desktop and its subdirectories"));
 
 	parser.AddOptionRange({ L"-s",L"--sound"},
 		ArgCount::ArgCount_One,
@@ -495,7 +495,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		ArgCount::ArgCount_One,
 		&gdata.wavFile_,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Wav file to play sound on notification"));
+		I18N(L"Wav-file to play sound on notification"));
 
 	bool isHelp = false;
 	parser.AddOptionRange({ L"-h",L"--help",L"/h",L"/help" },
