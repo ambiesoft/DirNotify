@@ -70,8 +70,6 @@ void ExitFatal(const std::wstring& error, DWORD dwLE)
 	ExitFatal(error.c_str(), dwLE);
 }
 
-
-
 void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
 	wstring file;
@@ -514,25 +512,25 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	COption opMonitorFile(L"-mf",
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Directory to monitor file"));
+		I18N(L"Directory to monitor Files"));
 	parser.AddOption(&opMonitorFile);
 
 	COption opMonitorDir(L"-md",
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Directory to monitor directory"));
+		I18N(L"Directory to monitor Directories"));
 	parser.AddOption(&opMonitorDir);
 
 	COption opMonitorFileSub(L"-mfs",
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Directory and its subdirectory to monitor file"));
+		I18N(L"Directory and its subdirectories to monitor Files"));
 	parser.AddOption(&opMonitorFileSub);
 
 	COption opMonitorDirSub(L"-mds",
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
-		I18N(L"Directory and its subdirectory to monitor directory"));
+		I18N(L"Directory and its subdirectories to monitor Directories"));
 	parser.AddOption(&opMonitorDirSub);
 
 	try
@@ -550,7 +548,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (parser.hadUnknownOption())
 	{
-		ExitFatal(I18N(L"Unknown Options:") + parser.getUnknowOptionStrings());
+		ExitFatal(I18N(L"Unknown Option(s):") + parser.getUnknowOptionStrings());
 	}
 	if (isHelp)
 	{
@@ -647,7 +645,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (gdata.monitorInfos_.empty())
 	{
-		ExitFatal(I18N(L"No dirs"));
+		ExitFatal(I18N(L"No Directories specified"));
 	}
 
 	for (auto&& mi : gdata.monitorInfos_)

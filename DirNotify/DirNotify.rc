@@ -18,10 +18,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// „Éã„É•„Éº„Éà„É©„É´ (Êó¢ÂÆö) resources
+// ÉjÉÖÅ[ÉgÉâÉã (ä˘íË) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
 LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+#pragma code_page(932)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -107,8 +108,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,27,0
- PRODUCTVERSION 1,0,27,0
+ FILEVERSION 1,0,28,0
+ PRODUCTVERSION 1,0,28,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -125,12 +126,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ambiesoft"
             VALUE "FileDescription", "Watch directory for file change"
-            VALUE "FileVersion", "1.0.27.0"
+            VALUE "FileVersion", "1.0.28.0"
             VALUE "InternalName", "DirNotif.exe"
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "DirNotif.exe"
             VALUE "ProductName", "DirNotify"
-            VALUE "ProductVersion", "1.0.27.0"
+            VALUE "ProductVersion", "1.0.28.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -139,15 +140,16 @@ BEGIN
     END
 END
 
-#endif    // „Éã„É•„Éº„Éà„É©„É´ (Êó¢ÂÆö) resources
+#endif    // ÉjÉÖÅ[ÉgÉâÉã (ä˘íË) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Ëã±Ë™û (Á±≥ÂõΩ) resources
+// âpåÍ (ïƒçë) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -191,7 +193,7 @@ BEGIN
     IDC_DirNotify           "DirNotify"
 END
 
-#endif    // Ëã±Ë™û (Á±≥ÂõΩ) resources
+#endif    // âpåÍ (ïƒçë) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
