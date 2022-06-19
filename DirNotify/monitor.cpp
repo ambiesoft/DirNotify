@@ -49,7 +49,24 @@ void __cdecl start_address(void * pvoid)
 			SendMessage(gdata.h_, WM_APP_DIRREMOVED, (WPARAM)pMI->dir_.c_str(), (LPARAM)buff);
 			break;
 		}
-		SendMessage(gdata.h_, WM_APP_FILECHANGED, (WPARAM)pMI->dir_.c_str(), (LPARAM)buff);
+
+		vector<NotifyPair> data;
+		for(FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)buff;;)
+		{
+			vector<WCHAR> text;
+			text.assign(fni->FileName, fni->FileName + fni->FileNameLength / sizeof(WCHAR));
+			text.push_back(L'\0');
+			wstring file = (LPCWSTR)&text[0];
+
+			std::pair<DWORD, wstring> entry = { fni->Action,file };
+			data.push_back(entry);
+			
+			if (fni->NextEntryOffset == 0)
+				break;
+			fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
+		} 
+			
+		SendMessage(gdata.h_, WM_APP_FILECHANGED, (WPARAM)pMI->dir_.c_str(), (LPARAM)&data);
 	}
 }
 

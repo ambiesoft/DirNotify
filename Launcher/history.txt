@@ -1,3 +1,5 @@
+Internal Change: Use vector<NotifyPair>
+
 2022/04/14 v1.0.29
 I18N
 

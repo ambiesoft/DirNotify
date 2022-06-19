@@ -40,3 +40,7 @@ HANDLE InitMonitor(MonitorInfo* pMI);
 
 extern HICON ghTrayIcon;
 extern GlobalData gdata;
+
+using NotifyPair = std::pair<DWORD, std::wstring>;
+
+

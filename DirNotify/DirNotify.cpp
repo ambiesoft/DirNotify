@@ -70,24 +70,25 @@ void ExitFatal(const std::wstring& error, DWORD dwLE)
 	ExitFatal(error.c_str(), dwLE);
 }
 
-void OnChanged(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
+void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 {
-	wstring file;
+#ifdef _DEBUG
 	{
-		vector<WCHAR> text;
-		text.assign(fni->FileName, fni->FileName + fni->FileNameLength / sizeof(WCHAR));
-		text.push_back(L'\0');
-		file = (LPCWSTR)&text[0];
+		wstringstream message;
+		for (size_t i = 0; i < pNotifyPairs->size(); ++i)
+		{
+			message << i << L":" << (*pNotifyPairs)[i].first << L":" << (*pNotifyPairs)[i].second << L"\r\n";
+		}
+		DTRACE(message.str());
 	}
+#endif
+	if (pNotifyPairs->empty())
+		return;
+	wstring file = (*pNotifyPairs)[0].second;
 	wstring newFile;
-	if(fni->NextEntryOffset != 0)
-	{
-		fni = (FILE_NOTIFY_INFORMATION*) ((BYTE*)fni + fni->NextEntryOffset);
-		vector<WCHAR> text;
-		text.assign(fni->FileName, fni->FileName + fni->FileNameLength / sizeof(WCHAR));
-		text.push_back(L'\0');
-		newFile = (LPCWSTR)&text[0];
-	}
+	if(pNotifyPairs->size() > 1)
+		wstring newFile = (*pNotifyPairs)[pNotifyPairs->size() - 1].second;
+
 	const wstring filefull = stdCombinePath(pDir, file);
 	if (stdFileExists(filefull))
 	{
@@ -379,7 +380,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_APP_FILECHANGED:
-		OnChanged(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
+		OnChanged(hWnd, (LPCTSTR)wParam, (vector<NotifyPair>*)lParam);
 		break;
 	case WM_APP_DIRREMOVED:
 		OnDirRemoved(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
