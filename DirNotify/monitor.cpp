@@ -24,7 +24,7 @@ void __cdecl start_address(void * pvoid)
 		NULL // template
 	));
 	if (!dir)
-		ExitFatal(L"Failed to open directory.");
+		ExitFatal(stdFormat(I18N(L"Failed to open directory '%s'."), pMI->dir_.c_str()));
 
 	const int BUFFLEN = 4096;
 	char buff[BUFFLEN];
