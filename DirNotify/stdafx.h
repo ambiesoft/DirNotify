@@ -25,8 +25,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <thread>
 
-
+#include "../../lsMisc/CHandle.h"
+#include "../../lsMisc/GetAllFile.h"
+#include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
+#include "../../lsMisc/CommandLineParser.h"
+#include "../../lsMisc/GetVersionString.h"
+#include "../../lsMisc/CreateCompleteDirectory.h"
+#include "../../lsMisc/IsDuplicateInstance.h"
 #include "../../lsMisc/CreateSimpleWindow.h"
 #include "../../lsMisc/GetLastErrorString.h"
 #include "../../lsMisc/TrayIcon.h"

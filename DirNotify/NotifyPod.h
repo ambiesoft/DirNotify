@@ -9,7 +9,7 @@ class NotifyPod
 	{
 		for (std::vector<NotifyPair>::iterator it=notifies_.begin(); it != notifies_.end(); ++it)
 		{
-			if (it->second == data) {
+			if (it->getData() == data) {
 				notifies_.erase(it);
 				return true;
 			}
@@ -26,10 +26,13 @@ public:
 		return notifies_.size();
 	}
 	DWORD getAction(size_t i) const {
-		return notifies_[i].first;
+		return notifies_[i].getAction();
 	}
 	std::wstring getData(size_t i) const {
-		return notifies_[i].second;
+		return notifies_[i].getData();
+	}
+	DWORD getFileAttribute(size_t i) const {
+		return notifies_[i].getFileAttribute();
 	}
 	bool refinePods();
 

@@ -41,6 +41,29 @@ HANDLE InitMonitor(MonitorInfo* pMI);
 extern HICON ghTrayIcon;
 extern GlobalData gdata;
 
-using NotifyPair = std::pair<DWORD, std::wstring>;
+class NotifyPair
+{
+	DWORD action_;
+	std::wstring data_;
+	DWORD fileOrDirectory_;
+public:
+	NotifyPair(DWORD ford, DWORD action, const std::wstring& data):
+		fileOrDirectory_(ford), action_(action), data_(data){}
 
+	std::wstring getData() const {
+		return data_;
+	}
+	DWORD getAction() const {
+		return action_;
+	}
+	DWORD getFileAttribute() const {
+		return fileOrDirectory_;
+	}
+};
+inline bool operator<(const NotifyPair& left, const NotifyPair& right)
+{
+	std::pair<DWORD, std::wstring> leftPair(left.getAction(), left.getData());
+	std::pair<DWORD, std::wstring> rightPair(right.getAction(), right.getData());
+	return leftPair < rightPair;
+}
 

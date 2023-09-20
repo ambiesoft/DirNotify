@@ -2,15 +2,6 @@
 //
 
 #include "stdafx.h"
-#include <thread>
-
-#include "../../lsMisc/CHandle.h"
-#include "../../lsMisc/GetAllFile.h"
-#include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
-#include "../../lsMisc/CommandLineParser.h"
-#include "../../lsMisc/GetVersionString.h"
-#include "../../lsMisc/CreateCompleteDirectory.h"
-#include "../../lsMisc/IsDuplicateInstance.h"
 
 #include "gitrev.h"
 #include "DirNotify.h"
@@ -61,11 +52,11 @@ wstring getActionString(const int action) {
 	}
 	return L"UNKNOWN";
 };
-wstring getFileOrDirectoryString(const wstring& path)
+wstring getFileOrDirectoryString(DWORD fileAttribute)
 {
-	if (stdFileExists(path))
+	if (fileAttribute==FILE_ATTRIBUTE_NORMAL)
 		return I18N(L"File");
-	if (stdDirectoryExists(path))
+	if (fileAttribute == FILE_ATTRIBUTE_DIRECTORY)
 		return I18N(L"Directory");
 	return I18N(L"File or Directory");
 }
@@ -77,7 +68,7 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 		for (size_t i = 0; i < pNotifyPairs->size(); ++i)
 		{
 			message << L"-------------------Start-----------------\r\n";
-			message << pDir << L":" << i << L":" << getActionString( (*pNotifyPairs)[i].first ) << L":" << (*pNotifyPairs)[i].second << L"\r\n";
+			message << pDir << L":" << i << L":" << getActionString( (*pNotifyPairs)[i].getAction() ) << L":" << (*pNotifyPairs)[i].getData() << L"\r\n";
 			message << L"-------------------End-----------------\r\n";
 		}
 		DTRACE(message.str());
@@ -135,7 +126,7 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 					const wstring full = stdCombinePath(pod.getDir(), data);
 					const int action = pod.getAction(0);
 					const wstring actionString = getActionString(action);
-					const wstring strFileOrDirectory = getFileOrDirectoryString(full);
+					const wstring strFileOrDirectory = getFileOrDirectoryString(pod.getFileAttribute(0));
 					switch (action)
 					{
 					case FILE_ACTION_ADDED:
@@ -166,7 +157,7 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 						const wstring dataTo = pod.getData(1);
 						const wstring fullTo = stdCombinePath(pod.getDir(), dataTo);
 						const wstring actionString = I18N(L"Renamed");
-						const wstring strFileOrDirectory = getFileOrDirectoryString(fullTo);
+						const wstring strFileOrDirectory = getFileOrDirectoryString(pod.getFileAttribute(0));
 						popMessage.push_back(stdFormat(L"%s %s in %s", strFileOrDirectory.c_str(), actionString.c_str(), pod.getDir().c_str()));
 						popMessage.push_back(stdFormat(L"%s -> %s", dataFrom.c_str(), dataTo.c_str()));
 						for (auto&& pod2 : gNotifyPods) {
@@ -587,25 +578,35 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			return 1;
 		}
 	}
-	if (isMonitorFileOfDesktop || isMonitorDirOfDesktop ||
-		isMonitorFileOfDesktopAndSub || isMonitorDirOfDesktopAndSub)
+
+	if (isMonitorFileOfDesktop)
 	{
 		MonitorInfo mi;
-		if(isMonitorFileOfDesktop)
-			mi.monitorFile_ = true;
-		if (isMonitorDirOfDesktop)
-			mi.monitorDir_ = true;
-		if (isMonitorFileOfDesktopAndSub)
-		{
-			mi.monitorFile_ = true;
-			mi.monitorSub_ = true;
-		}
-		if (isMonitorDirOfDesktopAndSub)
-		{
-			mi.monitorDir_ = true;
-			mi.monitorSub_ = true;
-		}
 		mi.dir_ = stdGetDesktopDirectory();
+		mi.monitorFile_ = true;
+		gdata.monitorInfos_.push_back(mi);
+	}
+	if (isMonitorDirOfDesktop)
+	{
+		MonitorInfo mi;
+		mi.dir_ = stdGetDesktopDirectory();
+		mi.monitorDir_ = true;
+		gdata.monitorInfos_.push_back(mi);
+	}
+	if (isMonitorFileOfDesktopAndSub)
+	{
+		MonitorInfo mi;
+		mi.dir_ = stdGetDesktopDirectory();
+		mi.monitorFile_ = true;
+		mi.monitorSub_ = true;
+		gdata.monitorInfos_.push_back(mi);
+	}
+	if (isMonitorDirOfDesktopAndSub)
+	{
+		MonitorInfo mi;
+		mi.dir_ = stdGetDesktopDirectory();
+		mi.monitorDir_ = true;
+		mi.monitorSub_ = true;
 		gdata.monitorInfos_.push_back(mi);
 	}
 
@@ -644,6 +645,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		ExitFatal(I18N(L"No Directories specified"));
 	}
+
+#ifdef _DEBUG
+	for (auto&& mi : gdata.monitorInfos_)
+	{
+		// Only monitor one of file or directory
+		DASSERT(!(mi.monitorDir_ && mi.monitorFile_));
+	}
+#endif
 
 	for (auto&& mi : gdata.monitorInfos_)
 	{

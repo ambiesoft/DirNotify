@@ -60,7 +60,8 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 			text.push_back(L'\0');
 			wstring file = (LPCWSTR)&text[0];
 
-			std::pair<DWORD, wstring> entry = { fni->Action,file };
+			NotifyPair entry( pMI->monitorDir_ ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
+				fni->Action,file );
 			data.push_back(entry);
 			
 			if (fni->NextEntryOffset == 0)
