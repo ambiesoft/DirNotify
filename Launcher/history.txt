@@ -1,3 +1,6 @@
+2023/09/20 v1.0.31
+Reworked notification algorithm
+
 2023/07/06 v1.0.30
 Modify error message
 Internal Change: Use vector<NotifyPair>

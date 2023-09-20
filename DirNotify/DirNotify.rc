@@ -18,11 +18,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutral (Default) resources
+// ニュートラル (既定) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
 LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
-#pragma code_page(1252)
+#pragma code_page(932)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -108,8 +108,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,30,0
- PRODUCTVERSION 1,0,30,0
+ FILEVERSION 1,0,31,0
+ PRODUCTVERSION 1,0,31,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -126,12 +126,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ambiesoft"
             VALUE "FileDescription", "Watch directory for file change"
-            VALUE "FileVersion", "1.0.30.0"
+            VALUE "FileVersion", "1.0.31.0"
             VALUE "InternalName", "DirNotif.exe"
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "DirNotif.exe"
             VALUE "ProductName", "DirNotify"
-            VALUE "ProductVersion", "1.0.30.0"
+            VALUE "ProductVersion", "1.0.31.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -140,12 +140,12 @@ BEGIN
     END
 END
 
-#endif    // Neutral (Default) resources
+#endif    // ニュートラル (既定) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// 英語 (米国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -193,7 +193,7 @@ BEGIN
     IDC_DirNotify           "DirNotify"
 END
 
-#endif    // English (United States) resources
+#endif    // 英語 (米国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -10,9 +10,11 @@
 #include "../../lsMisc/CommandLineParser.h"
 #include "../../lsMisc/GetVersionString.h"
 #include "../../lsMisc/CreateCompleteDirectory.h"
+#include "../../lsMisc/IsDuplicateInstance.h"
 
 #include "gitrev.h"
 #include "DirNotify.h"
+#include "NotifyPod.h"
 
 // PlaySound
 #pragma comment(lib,"Winmm.lib")
@@ -31,28 +33,7 @@ bool IsMainThread()
 	return GetCurrentThreadId() == gMainThreadId;
 }
 
-class MessageBod
-{
-	vector<wstring> messages_;
-	size_t curID_ = -1;
-public:
-	size_t curID() const { return curID_; }
-	void setMessage(wstring&& message) {
-		assert(IsMainThread());
-		curID_ = messages_.size();
-		messages_.emplace_back(message);
-	}
-	bool IsCurID(size_t id) const {
-		return curID_ == id;
-	}
-	const wstring& getMessage(size_t id) const {
-		return messages_[id];
-	}
-	void clear() {
-		messages_.clear();
-		curID_ = -1;
-	}
-} gMessagePod;
+vector<NotifyPod> gNotifyPods;
 
 void ExitFatal(LPCTSTR pError, DWORD dwLE)
 {
@@ -70,6 +51,24 @@ void ExitFatal(const std::wstring& error, DWORD dwLE)
 	ExitFatal(error.c_str(), dwLE);
 }
 
+wstring getActionString(const int action) {
+	switch (action) {
+	case FILE_ACTION_ADDED: return I18N(L"Added");
+	case FILE_ACTION_REMOVED: return I18N(L"Removed");
+	case FILE_ACTION_MODIFIED: return I18N(L"Modified");
+	case FILE_ACTION_RENAMED_OLD_NAME: return I18N(L"Renamed");
+	case FILE_ACTION_RENAMED_NEW_NAME: return I18N(L"Renamed");
+	}
+	return L"UNKNOWN";
+};
+wstring getFileOrDirectoryString(const wstring& path)
+{
+	if (stdFileExists(path))
+		return I18N(L"File");
+	if (stdDirectoryExists(path))
+		return I18N(L"Directory");
+	return I18N(L"File or Directory");
+}
 void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 {
 #ifdef _DEBUG
@@ -77,95 +76,124 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 		wstringstream message;
 		for (size_t i = 0; i < pNotifyPairs->size(); ++i)
 		{
-			message << i << L":" << (*pNotifyPairs)[i].first << L":" << (*pNotifyPairs)[i].second << L"\r\n";
+			message << L"-------------------Start-----------------\r\n";
+			message << pDir << L":" << i << L":" << getActionString( (*pNotifyPairs)[i].first ) << L":" << (*pNotifyPairs)[i].second << L"\r\n";
+			message << L"-------------------End-----------------\r\n";
 		}
 		DTRACE(message.str());
 	}
 #endif
 	if (pNotifyPairs->empty())
 		return;
-	wstring file = (*pNotifyPairs)[0].second;
-	wstring newFile;
-	if(pNotifyPairs->size() > 1)
-		wstring newFile = (*pNotifyPairs)[pNotifyPairs->size() - 1].second;
 
-	const wstring filefull = stdCombinePath(pDir, file);
-	if (stdFileExists(filefull))
-	{
-		WIN32_FIND_DATA wfd;
-		if (!FindClose(FindFirstFile(filefull.c_str(), &wfd)))
-		{
-			DTRACE(L"FindFirstFile failed");
-			return;
-		}
-		// skip if file size is zero
-		if (wfd.nFileSizeHigh == 0 && wfd.nFileSizeLow == 0)
-		{
-			DTRACE(stdFormat(L"Canceled '%s':File size is zero", filefull.c_str()));
-			return;
-		}
+	gNotifyPods.push_back(NotifyPod(pDir, *pNotifyPairs));
 
-		wstring message;
-		message += I18N(L"LastWrite Changed");
-		message += wstring() + L" '" + pDir + L"'";
-		message += L"\r\n";
-
-		message += stdFormat(I18N(L"Size=%d bytes"), wfd.nFileSizeLow);
-		message += L"\r\n";
-
-		message += file;
-		gMessagePod.setMessage(move(message));
-	}
-	else
-	{
-		if(newFile.empty())
-		{
-			wstringstream message;
-			if (stdDirectoryExists(filefull))
-				message << I18N(L"Directory Created");
-			else
-				message << I18N(L"Directory Removed");
-			message << L"\r\n";
-			message << filefull;
-			gMessagePod.setMessage(message.str());
-		}
-		else
-		{
-			wstringstream message;
-			message << I18N(L"Directory Changed");
-			message << L"\r\n";
-			message << file << L" -> " << newFile;
-			gMessagePod.setMessage(message.str());
-		}
-	}
-
-	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
-
-	std::thread afterrun([](HWND h, size_t messageId) {
+	std::thread afterrun([](HWND h) {
 		Sleep(3 * 1000);
-		PostMessage(h, WM_APP_AFTER_NOTIFIED, (WPARAM)messageId, 0);
-		}, hWnd, gMessagePod.curID());
+		PostMessage(h, WM_APP_AFTER_NOTIFIED, 0, 0);
+		}, hWnd);
 	afterrun.detach();
 }
 
-void OnDirRemoved(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
+void doShowPopup(HWND hWnd, vector<wstring>& popMessage, DWORD dwInfoFlags = NIIF_INFO)
 {
 	{
-		wstring message;
-		message += I18N(L"Directory Removed");
-		message += wstring() + L" '" + pDir + L"'";
-		message += L"\r\n";
-
-		gMessagePod.setMessage(move(message));
+		std::thread thd([&] {
+			Sleep(3 * 1000);
+			PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
+			});
+		thd.detach();
 	}
 
-	DTRACE_WITHCOUT(L"NotifyCounter", L"Notify!");
+	wstring popOutMessage = stdosd::stdJoinStrings(popMessage, L"\r\n", L"", L"");
+	gNotifyHistory.push_back(pair<time_t, wstring>(time(nullptr), popOutMessage));
+	DVERIFY_LE(PopupTrayIcon(gdata.h_, 
+		WM_APP_TRAY_NOTIFY,
+		ghTrayIcon, APP_NAME,
+		popOutMessage.c_str(),
+		dwInfoFlags));
+	if (gdata.isSound_)
+	{
+		PlaySound(gdata.wavFile_.c_str(), nullptr, SND_FILENAME | SND_ASYNC);
+	}
+}
+void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
+{
+	if (gNotifyPods.size() == 0)
+		return;
+	for (auto&& pod : gNotifyPods)
+		pod.refinePods();
 
-	std::thread afterrun([](HWND h, size_t messageId) {
-		Sleep(3 * 1000);
-		PostMessage(h, WM_APP_AFTER_NOTIFIED, (WPARAM)messageId, 0);
-		}, hWnd, gMessagePod.curID());
-	afterrun.detach();
+	vector<wstring> popMessage;
+	auto fnProcessPod = [&]()
+		{
+			for (auto&& pod : gNotifyPods)
+			{
+				if (pod.getCount() == 1)
+				{
+					const wstring data = pod.getData(0);
+					const wstring full = stdCombinePath(pod.getDir(), data);
+					const int action = pod.getAction(0);
+					const wstring actionString = getActionString(action);
+					const wstring strFileOrDirectory = getFileOrDirectoryString(full);
+					switch (action)
+					{
+					case FILE_ACTION_ADDED:
+					case FILE_ACTION_REMOVED:
+					case FILE_ACTION_MODIFIED:
+						if (action == FILE_ACTION_MODIFIED && stdDirectoryExists(full))
+						{
+							// Skip directory modification message
+						}
+						else
+						{
+							popMessage.push_back(stdFormat(L"%s %s", strFileOrDirectory.c_str(), actionString.c_str()));
+							popMessage.push_back(full);
+						}
+						for (auto&& pod2 : gNotifyPods)
+							pod2.removeAny(data);
+						return;
+					}
+				}
+				else if (pod.getCount() == 2)
+				{
+					if (pod.getAction(0) == FILE_ACTION_RENAMED_OLD_NAME &&
+						pod.getAction(1) == FILE_ACTION_RENAMED_NEW_NAME )
+					{
+						// Renamed
+						const wstring dataFrom = pod.getData(0);
+						const wstring fullFrom = stdCombinePath(pod.getDir(), dataFrom);
+						const wstring dataTo = pod.getData(1);
+						const wstring fullTo = stdCombinePath(pod.getDir(), dataTo);
+						const wstring actionString = I18N(L"Renamed");
+						const wstring strFileOrDirectory = getFileOrDirectoryString(fullTo);
+						popMessage.push_back(stdFormat(L"%s %s in %s", strFileOrDirectory.c_str(), actionString.c_str(), pod.getDir().c_str()));
+						popMessage.push_back(stdFormat(L"%s -> %s", dataFrom.c_str(), dataTo.c_str()));
+						for (auto&& pod2 : gNotifyPods) {
+							pod2.removeAny(dataFrom);
+							pod2.removeAny(dataTo);
+						}
+						return;
+					}
+				}
+			}
+		};
+
+	fnProcessPod();
+
+	doShowPopup(hWnd, popMessage);
+
+	gNotifyPods.clear();
+}
+
+void OnMonitorDirRemoved(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
+{
+	vector<wstring> popMessage;
+	
+	popMessage.push_back(L"Monitor directory Removed");
+	popMessage.push_back(pDir);
+
+	doShowPopup(hWnd, popMessage, NIIF_WARNING);
 }
 
 UINT WM_TASKBARCREATED;
@@ -382,35 +410,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_APP_FILECHANGED:
 		OnChanged(hWnd, (LPCTSTR)wParam, (vector<NotifyPair>*)lParam);
 		break;
-	case WM_APP_DIRREMOVED:
-		OnDirRemoved(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
+	case WM_APP_MONITOR_DIR_REMOVED:
+		OnMonitorDirRemoved(hWnd, (LPCTSTR)wParam, (FILE_NOTIFY_INFORMATION*)lParam);
 		break;
 	case WM_APP_REFRESH_DESKTOP:
 		SHChangeNotify(0x8000000, 0x1000, 0, 0);
 		break;
 	case WM_APP_AFTER_NOTIFIED:
-		{
-			size_t thisMessageID = (size_t)wParam;
-			if (!gMessagePod.IsCurID(thisMessageID))
-				break;
-			wstring message = gMessagePod.getMessage(thisMessageID);
-			gMessagePod.clear();
-			// if (stdIsSamePath(stdGetDesktopDirectory(), pDir))
-			{
-				std::thread thd([&] {
-					Sleep(3 * 1000);
-					PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
-					});
-				thd.detach();
-			}
-			
-			gNotifyHistory.push_back(pair<time_t,wstring>(time(nullptr), message));
-			DVERIFY_LE(PopupTrayIcon(gdata.h_, WM_APP_TRAY_NOTIFY, ghTrayIcon, APP_NAME, message.c_str()));
-			if (gdata.isSound_)
-			{
-				PlaySound(gdata.wavFile_.c_str(), nullptr, SND_FILENAME | SND_ASYNC);
-			}
-		}
+		OnAfterNotified(hWnd, (size_t)wParam);
 		break;
 	case WM_COMMAND:
 		OnCommand(hWnd, LOWORD(wParam));
@@ -431,14 +438,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 
-
-CKernelHandle hDupCheck;
-bool CheckDuplicateInstance()
-{
-	DASSERT(!hDupCheck);
-	hDupCheck = CreateMutex(NULL, TRUE, L"DirNotify_Mutex");
-	return GetLastError() != ERROR_ALREADY_EXISTS;
-}
 
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -562,7 +561,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		MessageBox(NULL, message.c_str(), APP_NAME, MB_ICONINFORMATION);
 		return 0;
 	}
-	if (!CheckDuplicateInstance())
+	if (IsDuplicateInstance(L"DirNotify_Mutex"))
 	{
 		if (sgHwnd == nullptr)
 			ExitFatal(I18N(L"This is duplicated instance but failed to find previous one."));

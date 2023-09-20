@@ -10,7 +10,7 @@ using namespace Ambiesoft::stdosd;
 using namespace std;
 
 
-void __cdecl start_address(void * pvoid)
+void __cdecl MonitorEntryPoint(void * pvoid)
 {
 	DASSERT(pvoid);
 	MonitorInfo* pMI = (MonitorInfo*)pvoid;
@@ -30,8 +30,10 @@ void __cdecl start_address(void * pvoid)
 	char buff[BUFFLEN];
 	DWORD dwLen;
 	DWORD dwNotifyFilter = 0;
-	if (pMI->monitorFile_)
+	if (pMI->monitorFile_) {
 		dwNotifyFilter |= FILE_NOTIFY_CHANGE_LAST_WRITE;
+		dwNotifyFilter |= FILE_NOTIFY_CHANGE_FILE_NAME;
+	}
 	if(pMI->monitorDir_)
 		dwNotifyFilter |= FILE_NOTIFY_CHANGE_DIR_NAME;
 	DASSERT(dwNotifyFilter != 0);
@@ -46,7 +48,7 @@ void __cdecl start_address(void * pvoid)
 			NULL, NULL))
 		{
 			// ExitFatal(L"Failed to ReadDirectoryChangesW");
-			SendMessage(gdata.h_, WM_APP_DIRREMOVED, (WPARAM)pMI->dir_.c_str(), (LPARAM)buff);
+			SendMessage(gdata.h_, WM_APP_MONITOR_DIR_REMOVED, (WPARAM)pMI->dir_.c_str(), (LPARAM)buff);
 			break;
 		}
 
@@ -101,7 +103,7 @@ void InitMonitors()
 }
 HANDLE InitMonitor(MonitorInfo* pMI)
 {
-	HANDLE hThread = (HANDLE)_beginthread(start_address, 0, (void*)pMI);
+	HANDLE hThread = (HANDLE)_beginthread(MonitorEntryPoint, 0, (void*)pMI);
 	if (!hThread)
 		ExitFatal(I18N(L"Failed to create thread."));
 
