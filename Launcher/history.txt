@@ -1,3 +1,6 @@
+2023/09/20 v1.0.32
+I18N
+
 2023/09/20 v1.0.31
 Reworked notification algorithm
 

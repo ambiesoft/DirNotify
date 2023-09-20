@@ -27,6 +27,8 @@
 #include <map>
 #include <thread>
 
+#include <boost/format.hpp>
+
 #include "../../lsMisc/CHandle.h"
 #include "../../lsMisc/GetAllFile.h"
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"

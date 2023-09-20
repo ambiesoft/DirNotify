@@ -108,8 +108,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,31,0
- PRODUCTVERSION 1,0,31,0
+ FILEVERSION 1,0,32,0
+ PRODUCTVERSION 1,0,32,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -126,12 +126,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ambiesoft"
             VALUE "FileDescription", "Watch directory for file change"
-            VALUE "FileVersion", "1.0.31.0"
+            VALUE "FileVersion", "1.0.32.0"
             VALUE "InternalName", "DirNotif.exe"
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "DirNotif.exe"
             VALUE "ProductName", "DirNotify"
-            VALUE "ProductVersion", "1.0.31.0"
+            VALUE "ProductVersion", "1.0.32.0"
         END
     END
     BLOCK "VarFileInfo"

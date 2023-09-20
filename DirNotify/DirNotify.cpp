@@ -138,7 +138,8 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 						}
 						else
 						{
-							popMessage.push_back(stdFormat(L"%s %s", strFileOrDirectory.c_str(), actionString.c_str()));
+							popMessage.push_back(boost::str(boost::wformat(I18N(L"%1% has been %2%")) %
+								strFileOrDirectory % actionString));
 							popMessage.push_back(full);
 						}
 						for (auto&& pod2 : gNotifyPods)
@@ -158,8 +159,13 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 						const wstring fullTo = stdCombinePath(pod.getDir(), dataTo);
 						const wstring actionString = I18N(L"Renamed");
 						const wstring strFileOrDirectory = getFileOrDirectoryString(pod.getFileAttribute(0));
-						popMessage.push_back(stdFormat(L"%s %s in %s", strFileOrDirectory.c_str(), actionString.c_str(), pod.getDir().c_str()));
-						popMessage.push_back(stdFormat(L"%s -> %s", dataFrom.c_str(), dataTo.c_str()));
+
+						popMessage.push_back(boost::str(boost::wformat(I18N(L"%1% has been %2% in %3%")) %
+							strFileOrDirectory %
+							actionString %
+							pod.getDir()));
+						popMessage.push_back(boost::str(boost::wformat(I18N(L"%1% -> %2%")) %
+							dataFrom % dataTo));
 						for (auto&& pod2 : gNotifyPods) {
 							pod2.removeAny(dataFrom);
 							pod2.removeAny(dataTo);
