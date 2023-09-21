@@ -14,6 +14,8 @@ public:
 		return dir_;
 	}
 	std::wstring getMonitarTagetAsString() const;
+	std::wstring isSubTreeAsString() const;
+
 	bool isSubTree() const {
 		return monitorSub_;
 	}

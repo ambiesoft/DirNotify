@@ -254,15 +254,15 @@ void OnCommand(HWND hWnd, WORD cmd)
 	{
 	case IDC_ABOUT:
 	{
-		tstring message;
+		wstring message;
 		message += APP_NAME L" v" + GetVersionString(stdGetModuleFileName().c_str(),3);
-		message += _T("\r\n\r\n");
+		message += L"\r\n\r\n";
 		message += I18N(L"Directories in monitor:");
 		message += L"\r\n";
 		for (auto&& mis : gdata.monitorInfos_)
 		{
-			message += boost::str(boost::wformat(L"'%1%' Target=%2% Subtree=%3%") %
-				mis.getDir() % mis.getMonitarTagetAsString() % mis.isSubTree());
+			message += boost::str(boost::wformat(I18N(L"'%1%' Target=%2% Subtree=%3%")) %
+				mis.getDir() % mis.getMonitarTagetAsString() % mis.isSubTreeAsString());
 			message += L"\r\n";
 		}
 		MessageBox(NULL,

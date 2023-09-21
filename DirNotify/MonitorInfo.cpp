@@ -15,3 +15,6 @@ std::wstring MonitorInfo::getMonitarTagetAsString() const {
 	}
 	return I18N(L"Unknown");
 }
+std::wstring MonitorInfo::isSubTreeAsString() const {
+	return isSubTree() ? I18N(L"Yes") : I18N(L"No");
+}
