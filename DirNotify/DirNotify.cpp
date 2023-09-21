@@ -261,7 +261,8 @@ void OnCommand(HWND hWnd, WORD cmd)
 		message += L"\r\n";
 		for (auto&& mis : gdata.monitorInfos_)
 		{
-			message += mis.dir_;
+			message += boost::str(boost::wformat(L"'%1%' Target=%2% Subtree=%3%") %
+				mis.getDir() % mis.getMonitarTagetAsString() % mis.isSubTree());
 			message += L"\r\n";
 		}
 		MessageBox(NULL,
@@ -587,63 +588,43 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (isMonitorFileOfDesktop)
 	{
-		MonitorInfo mi;
-		mi.dir_ = stdGetDesktopDirectory();
-		mi.monitorFile_ = true;
+		MonitorInfo mi(stdGetDesktopDirectory(), true, false, false);
 		gdata.monitorInfos_.push_back(mi);
 	}
 	if (isMonitorDirOfDesktop)
 	{
-		MonitorInfo mi;
-		mi.dir_ = stdGetDesktopDirectory();
-		mi.monitorDir_ = true;
+		MonitorInfo mi(stdGetDesktopDirectory(), false, true, false);
 		gdata.monitorInfos_.push_back(mi);
 	}
 	if (isMonitorFileOfDesktopAndSub)
 	{
-		MonitorInfo mi;
-		mi.dir_ = stdGetDesktopDirectory();
-		mi.monitorFile_ = true;
-		mi.monitorSub_ = true;
+		MonitorInfo mi(stdGetDesktopDirectory(), true, false, true);
 		gdata.monitorInfos_.push_back(mi);
 	}
 	if (isMonitorDirOfDesktopAndSub)
 	{
-		MonitorInfo mi;
-		mi.dir_ = stdGetDesktopDirectory();
-		mi.monitorDir_ = true;
-		mi.monitorSub_ = true;
+		MonitorInfo mi(stdGetDesktopDirectory(), false, true, true);
 		gdata.monitorInfos_.push_back(mi);
 	}
 
 	for (size_t i = 0; i < opMonitorFile.getValueCount(); ++i)
 	{
-		MonitorInfo mi;
-		mi.monitorFile_ = true;
-		mi.dir_ = stdExpandEnvironmentStrings(opMonitorFile.getValue(i));
+		MonitorInfo mi(stdExpandEnvironmentStrings(opMonitorFile.getValue(i)), true, false, false);
 		gdata.monitorInfos_.push_back(mi);
 	}
 	for (size_t i = 0; i < opMonitorDir.getValueCount(); ++i)
 	{
-		MonitorInfo mi;
-		mi.monitorDir_ = true;
-		mi.dir_ = stdExpandEnvironmentStrings(opMonitorDir.getValue(i));
+		MonitorInfo mi(stdExpandEnvironmentStrings(opMonitorDir.getValue(i)), false, true, false);
 		gdata.monitorInfos_.push_back(mi);
 	}
 	for (size_t i = 0; i < opMonitorFileSub.getValueCount(); ++i)
 	{
-		MonitorInfo mi;
-		mi.monitorFile_ = true;
-		mi.monitorSub_ = true;
-		mi.dir_ = stdExpandEnvironmentStrings(opMonitorFileSub.getValue(i));
+		MonitorInfo mi(stdExpandEnvironmentStrings(opMonitorFileSub.getValue(i)), true, false, true);
 		gdata.monitorInfos_.push_back(mi);
 	}
 	for (size_t i = 0; i < opMonitorDirSub.getValueCount(); ++i)
 	{
-		MonitorInfo mi;
-		mi.monitorDir_ = true;
-		mi.monitorSub_ = true;
-		mi.dir_ = stdExpandEnvironmentStrings(opMonitorDirSub.getValue(i));
+		MonitorInfo mi(stdExpandEnvironmentStrings(opMonitorDirSub.getValue(i)), false, true, true);
 		gdata.monitorInfos_.push_back(mi);
 	}
 
@@ -656,32 +637,32 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	for (auto&& mi : gdata.monitorInfos_)
 	{
 		// Only monitor one of file or directory
-		DASSERT(!(mi.monitorDir_ && mi.monitorFile_));
+		DASSERT(!(mi.isMonitorDirectory() && mi.isMonitorFile()));
 	}
 #endif
 
 	for (auto&& mi : gdata.monitorInfos_)
 	{
-		if (PathFileExists(mi.dir_.c_str()) && !PathIsDirectory(mi.dir_.c_str()))
+		if (PathFileExists(mi.getDir().c_str()) && !PathIsDirectory(mi.getDir().c_str()))
 		{
-			ExitFatal(stdFormat(I18N(L"'%s' is a file. A directory must be provided."), mi.dir_.c_str()));
+			ExitFatal(stdFormat(I18N(L"'%s' is a file. A directory must be provided."), mi.getDir().c_str()));
 		}
-		if (!PathIsDirectory(mi.dir_.c_str()))
+		if (!PathIsDirectory(mi.getDir().c_str()))
 		{
 			if (IDYES == MessageBox(NULL,
-				stdFormat(I18N(L"Directory '%s' does not exist. Do you want to create it?"), mi.dir_.c_str()).c_str(),
+				stdFormat(I18N(L"Directory '%s' does not exist. Do you want to create it?"), mi.getDir().c_str()).c_str(),
 				APP_NAME,
 				MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
 			{
-				CreateCompleteDirectory(mi.dir_.c_str());
+				CreateCompleteDirectory(mi.getDir().c_str());
 			}
 		}
 	}
 	for (auto&& mi : gdata.monitorInfos_)
 	{
-		if (!PathIsDirectory(mi.dir_.c_str()))
+		if (!PathIsDirectory(mi.getDir().c_str()))
 		{
-			ExitFatal(stdFormat(I18N(L"'%s' is not a directory."), mi.dir_.c_str()));
+			ExitFatal(stdFormat(I18N(L"'%s' is not a directory."), mi.getDir().c_str()));
 		}
 	}
 

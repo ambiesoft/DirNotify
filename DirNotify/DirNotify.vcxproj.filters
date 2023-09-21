@@ -93,6 +93,9 @@
     <ClInclude Include="NotifyPod.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MonitorInfo.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -153,6 +156,9 @@
       <Filter>2 Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NotifyPod.cpp">
+      <Filter>2 Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MonitorInfo.cpp">
       <Filter>2 Source Files</Filter>
     </ClCompile>
   </ItemGroup>

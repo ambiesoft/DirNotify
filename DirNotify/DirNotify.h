@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource.h"
+#include "MonitorInfo.h"
 
 enum {
 	WM_APP_FILECHANGED = WM_APP + 1,
@@ -11,15 +12,6 @@ enum {
 	WM_APP_MONITOR_DIR_REMOVED,
 };
 
-struct MonitorInfo
-{
-	bool monitorFile_;
-	bool monitorDir_;
-	bool monitorSub_;
-	std::wstring dir_;
-
-	MonitorInfo() : monitorFile_(false),monitorDir_(false),monitorSub_(false) {	}
-};
 struct GlobalData
 {
 	HWND h_;

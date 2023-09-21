@@ -15,7 +15,7 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 	DASSERT(pvoid);
 	MonitorInfo* pMI = (MonitorInfo*)pvoid;
 
-	CFileHandle dir(CreateFile(pMI->dir_.c_str(),
+	CFileHandle dir(CreateFile(pMI->getDir().c_str(),
 		GENERIC_READ,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // share
 		NULL, // security
@@ -24,17 +24,17 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 		NULL // template
 	));
 	if (!dir)
-		ExitFatal(stdFormat(I18N(L"Failed to open directory '%s'."), pMI->dir_.c_str()));
+		ExitFatal(stdFormat(I18N(L"Failed to open directory '%s'."), pMI->getDir().c_str()));
 
 	const int BUFFLEN = 4096;
 	char buff[BUFFLEN];
 	DWORD dwLen;
 	DWORD dwNotifyFilter = 0;
-	if (pMI->monitorFile_) {
+	if (pMI->isMonitorFile()) {
 		dwNotifyFilter |= FILE_NOTIFY_CHANGE_LAST_WRITE;
 		dwNotifyFilter |= FILE_NOTIFY_CHANGE_FILE_NAME;
 	}
-	if(pMI->monitorDir_)
+	if(pMI->isMonitorDirectory())
 		dwNotifyFilter |= FILE_NOTIFY_CHANGE_DIR_NAME;
 	DASSERT(dwNotifyFilter != 0);
 	while (true)
@@ -42,13 +42,13 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 		if (!ReadDirectoryChangesW(dir,
 			buff,
 			BUFFLEN,
-			pMI->monitorSub_ ? TRUE : FALSE,
+			pMI->isMonitorDirectory() ? TRUE : FALSE,
 			dwNotifyFilter,
 			&dwLen,
 			NULL, NULL))
 		{
 			// ExitFatal(L"Failed to ReadDirectoryChangesW");
-			SendMessage(gdata.h_, WM_APP_MONITOR_DIR_REMOVED, (WPARAM)pMI->dir_.c_str(), (LPARAM)buff);
+			SendMessage(gdata.h_, WM_APP_MONITOR_DIR_REMOVED, (WPARAM)pMI->getDir().c_str(), (LPARAM)buff);
 			break;
 		}
 
@@ -60,7 +60,7 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 			text.push_back(L'\0');
 			wstring file = (LPCWSTR)&text[0];
 
-			NotifyPair entry( pMI->monitorDir_ ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
+			NotifyPair entry( pMI->isMonitorDirectory() ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
 				fni->Action,file );
 			data.push_back(entry);
 			
@@ -69,7 +69,7 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 			fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
 		} 
 			
-		SendMessage(gdata.h_, WM_APP_FILECHANGED, (WPARAM)pMI->dir_.c_str(), (LPARAM)&data);
+		SendMessage(gdata.h_, WM_APP_FILECHANGED, (WPARAM)pMI->getDir().c_str(), (LPARAM)&data);
 	}
 }
 

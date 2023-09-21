@@ -186,6 +186,7 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
     <ClInclude Include="..\..\lsMisc\TrayIcon.h" />
     <ClInclude Include="..\..\lsMisc\UrlEncode.h" />
     <ClInclude Include="..\..\lsMisc\UTF16toUTF8.h" />
+    <ClInclude Include="MonitorInfo.h" />
     <ClInclude Include="NotifyPod.h" />
     <ClInclude Include="DirNotify.h" />
     <ClInclude Include="gitrev.h" />
@@ -300,6 +301,7 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
     </ClCompile>
     <ClCompile Include="DirNotify.cpp" />
     <ClCompile Include="monitor.cpp" />
+    <ClCompile Include="MonitorInfo.cpp" />
     <ClCompile Include="NotifyPod.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
