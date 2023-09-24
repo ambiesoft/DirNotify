@@ -1,3 +1,6 @@
+2023/09/24 v1.0.34
+Change popup message
+
 2023/09/22 v1.0.33
 Information dialog describes much of the information of the monitoring
 

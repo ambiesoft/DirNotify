@@ -6,6 +6,7 @@
 #include "gitrev.h"
 #include "DirNotify.h"
 #include "NotifyPod.h"
+#include "PopMessage.h"
 
 // PlaySound
 #pragma comment(lib,"Winmm.lib")
@@ -86,7 +87,7 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 	afterrun.detach();
 }
 
-void doShowPopup(HWND hWnd, vector<wstring>& popMessage, DWORD dwInfoFlags = NIIF_INFO)
+void doShowPopup(HWND hWnd, const vector<PopMessage>& popMessages, DWORD dwInfoFlags = NIIF_INFO)
 {
 	{
 		std::thread thd([&] {
@@ -96,18 +97,43 @@ void doShowPopup(HWND hWnd, vector<wstring>& popMessage, DWORD dwInfoFlags = NII
 		thd.detach();
 	}
 
-	wstring popOutMessage = stdosd::stdJoinStrings(popMessage, L"\r\n", L"", L"");
-	gNotifyHistory.push_back(pair<time_t, wstring>(time(nullptr), popOutMessage));
+	for (auto&& pm : popMessages)
+	{
+		gNotifyHistory.push_back(pair<time_t, wstring>(time(nullptr), pm.ToString()));
+	}
+
+	DASSERT(popMessages.size() != 0);
+
+	// Get continuous message from tail
+	wstring fixedFirstLine = popMessages[popMessages.size() - 1].getFirstLine();
+	vector<wstring> secondLines;
+	for (auto&& pm : popMessages)
+	{
+		if (pm.getFirstLine() != fixedFirstLine)
+		{
+			secondLines.clear();
+			continue;
+		}
+		secondLines.push_back(pm.getSecondLine());
+	}
+
 	DVERIFY_LE(PopupTrayIcon(gdata.h_, 
 		WM_APP_TRAY_NOTIFY,
 		ghTrayIcon, APP_NAME,
-		popOutMessage.c_str(),
+		(fixedFirstLine + L"\r\n" + stdosd::stdJoinStrings(secondLines, L"\r\n", L"", L"")).c_str(),
 		dwInfoFlags));
 	if (gdata.isSound_)
 	{
 		PlaySound(gdata.wavFile_.c_str(), nullptr, SND_FILENAME | SND_ASYNC);
 	}
 }
+void doShowPopup(HWND hWnd, const PopMessage& popMessage, DWORD dwInfoFlags = NIIF_INFO)
+{
+	vector<PopMessage> popMessages;
+	popMessages.push_back(popMessage);
+	doShowPopup(hWnd, popMessages, dwInfoFlags);
+}
+
 void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 {
 	if (gNotifyPods.size() == 0)
@@ -115,7 +141,7 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 	for (auto&& pod : gNotifyPods)
 		pod.refinePods();
 
-	vector<wstring> popMessage;
+	vector<PopMessage> popMessages;
 	auto fnProcessPod = [&]()
 		{
 			for (auto&& pod : gNotifyPods)
@@ -138,13 +164,11 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 						}
 						else
 						{
-							popMessage.push_back(boost::str(boost::wformat(I18N(L"%1% has been %2%")) %
-								strFileOrDirectory % actionString));
-							popMessage.push_back(full);
+							popMessages.emplace_back(PopMessage(
+								boost::str(boost::wformat(I18N(L"%1% has been %2%")) %
+									strFileOrDirectory % actionString),
+								full));
 						}
-						for (auto&& pod2 : gNotifyPods)
-							pod2.removeAny(data);
-						return;
 					}
 				}
 				else if (pod.getCount() == 2)
@@ -160,17 +184,13 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 						const wstring actionString = I18N(L"Renamed");
 						const wstring strFileOrDirectory = getFileOrDirectoryString(pod.getFileAttribute(0));
 
-						popMessage.push_back(boost::str(boost::wformat(I18N(L"%1% has been %2% in %3%")) %
-							strFileOrDirectory %
-							actionString %
-							pod.getDir()));
-						popMessage.push_back(boost::str(boost::wformat(I18N(L"%1% -> %2%")) %
-							dataFrom % dataTo));
-						for (auto&& pod2 : gNotifyPods) {
-							pod2.removeAny(dataFrom);
-							pod2.removeAny(dataTo);
-						}
-						return;
+						popMessages.emplace_back(PopMessage(
+							boost::str(boost::wformat(I18N(L"%1% has been %2% in %3%")) %
+								strFileOrDirectory %
+								actionString %
+								pod.getDir()),
+							boost::str(boost::wformat(I18N(L"%1% -> %2%")) %
+								dataFrom % dataTo)));
 					}
 				}
 			}
@@ -178,17 +198,16 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 
 	fnProcessPod();
 
-	doShowPopup(hWnd, popMessage);
+	doShowPopup(hWnd, popMessages);
 
 	gNotifyPods.clear();
 }
 
 void OnMonitorDirRemoved(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 {
-	vector<wstring> popMessage;
-	
-	popMessage.push_back(L"Monitor directory Removed");
-	popMessage.push_back(pDir);
+	PopMessage popMessage(
+		L"Monitor directory Removed",
+		pDir);
 
 	doShowPopup(hWnd, popMessage, NIIF_WARNING);
 }
