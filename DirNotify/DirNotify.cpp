@@ -510,14 +510,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		I18N(L"Wav-file to play sound on notification"));
 
 	bool isHelp = false;
-	parser.AddOptionRange({ L"-h",L"--help",L"/h",L"/help" },
+	parser.AddOptionRange({ L"-h", L"--help", L"/?", L"/h", L"/help" },
 		0,
 		&isHelp,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Show Help"));
 
 	bool isVersion = false;
-	parser.AddOptionRange({ L"-v",L"--version",L"/v",L"/version" },
+	parser.AddOptionRange({ L"-v", L"--version", L"/v", L"/version" },
 		0,
 		&isVersion,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
