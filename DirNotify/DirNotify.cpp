@@ -89,6 +89,9 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 
 void doShowPopup(HWND hWnd, const vector<PopMessage>& popMessages, DWORD dwInfoFlags = NIIF_INFO)
 {
+	if (popMessages.size() == 0)
+		return;
+
 	{
 		std::thread thd([&] {
 			Sleep(3 * 1000);
@@ -101,8 +104,6 @@ void doShowPopup(HWND hWnd, const vector<PopMessage>& popMessages, DWORD dwInfoF
 	{
 		gNotifyHistory.push_back(pair<time_t, wstring>(time(nullptr), pm.ToString()));
 	}
-
-	DASSERT(popMessages.size() != 0);
 
 	// Get continuous message from tail
 	wstring fixedFirstLine = popMessages[popMessages.size() - 1].getFirstLine();

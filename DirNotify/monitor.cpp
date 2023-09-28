@@ -42,7 +42,7 @@ void __cdecl MonitorEntryPoint(void * pvoid)
 		if (!ReadDirectoryChangesW(dir,
 			buff,
 			BUFFLEN,
-			pMI->isMonitorDirectory() ? TRUE : FALSE,
+			pMI->isSubTree() ? TRUE : FALSE,
 			dwNotifyFilter,
 			&dwLen,
 			NULL, NULL))

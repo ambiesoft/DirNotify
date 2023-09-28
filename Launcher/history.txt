@@ -1,3 +1,6 @@
+2023/09/29 v1.0.35
+Fixed: Monitor sub tree was not worked
+
 2023/09/24 v1.0.34
 Change popup message
 
