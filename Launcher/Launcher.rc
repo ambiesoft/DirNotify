@@ -60,7 +60,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_DirNotify           ICON                    "..\DirNotify\DirNotify.ico"
+IDI_DirNotify           ICON                    "..\DirNotify\icon.ico"
 #endif    // 英語 (英国) resources
 /////////////////////////////////////////////////////////////////////////////
 

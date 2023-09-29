@@ -31,9 +31,9 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_DirNotify           ICON                    "DirNotify.ico"
+IDI_DirNotify           ICON                    "icon.ico"
 
-IDI_SMALL               ICON                    "small.ico"
+IDI_SMALL               ICON                    "icon.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

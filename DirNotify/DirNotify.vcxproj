@@ -316,8 +316,7 @@ copy "$(ProjectDir)lang\jpn.txt" "$(TargetDir)lang\"</Command>
     <ResourceCompile Include="DirNotify.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="DirNotify.ico" />
-    <Image Include="small.ico" />
+    <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="lang\jpn.txt" />
