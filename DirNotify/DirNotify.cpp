@@ -87,11 +87,15 @@ void OnChanged(HWND hWnd, LPCTSTR pDir, vector<NotifyPair>* pNotifyPairs)
 	afterrun.detach();
 }
 
-void doShowPopup(HWND hWnd, const vector<PopMessage>& popMessages, DWORD dwInfoFlags = NIIF_INFO)
+void doShowPopup(HWND hWnd, 
+	const vector<PopMessage>& popMessages, 
+	bool isDesktop,
+	DWORD dwInfoFlags = NIIF_INFO)
 {
 	if (popMessages.size() == 0)
 		return;
 
+	if(isDesktop)
 	{
 		std::thread thd([&] {
 			Sleep(3 * 1000);
@@ -128,12 +132,6 @@ void doShowPopup(HWND hWnd, const vector<PopMessage>& popMessages, DWORD dwInfoF
 		PlaySound(gdata.wavFile_.c_str(), nullptr, SND_FILENAME | SND_ASYNC);
 	}
 }
-void doShowPopup(HWND hWnd, const PopMessage& popMessage, DWORD dwInfoFlags = NIIF_INFO)
-{
-	vector<PopMessage> popMessages;
-	popMessages.push_back(popMessage);
-	doShowPopup(hWnd, popMessages, dwInfoFlags);
-}
 
 void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 {
@@ -143,10 +141,12 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 		pod.refinePods();
 
 	vector<PopMessage> popMessages;
+	bool isDesktop = false;
 	auto fnProcessPod = [&]()
 		{
 			for (auto&& pod : gNotifyPods)
 			{
+				isDesktop |= stdIsSamePath(stdGetDesktopDirectory(), pod.getDir());
 				if (pod.getCount() == 1)
 				{
 					const wstring data = pod.getData(0);
@@ -199,7 +199,7 @@ void OnAfterNotified(HWND hWnd, const size_t thisMessageID)
 
 	fnProcessPod();
 
-	doShowPopup(hWnd, popMessages);
+	doShowPopup(hWnd, popMessages, isDesktop);
 
 	gNotifyPods.clear();
 }
@@ -210,7 +210,10 @@ void OnMonitorDirRemoved(HWND hWnd, LPCTSTR pDir, FILE_NOTIFY_INFORMATION* fni)
 		L"Monitor directory Removed",
 		pDir);
 
-	doShowPopup(hWnd, popMessage, NIIF_WARNING);
+	doShowPopup(hWnd, 
+		{ popMessage },
+		stdIsSamePath(stdGetDesktopDirectory(), pDir),
+		NIIF_WARNING);
 }
 
 UINT WM_TASKBARCREATED;
