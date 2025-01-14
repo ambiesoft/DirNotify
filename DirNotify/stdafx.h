@@ -33,7 +33,7 @@
 #include "../../lsMisc/GetAllFile.h"
 #include "../../lsMisc/SessionGlobalMemory/SessionGlobalMemory.h"
 #include "../../lsMisc/CommandLineParser.h"
-#include "../../lsMisc/GetVersionString.h"
+#include "../../lsMisc/GetVersionStringFromResource.h"
 #include "../../lsMisc/CreateCompleteDirectory.h"
 #include "../../lsMisc/IsDuplicateInstance.h"
 #include "../../lsMisc/CreateSimpleWindow.h"

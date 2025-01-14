@@ -78,9 +78,6 @@
     <ClInclude Include="..\..\lsMisc\UTF16toUTF8.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\lsMisc\GetVersionString.h">
-      <Filter>1 Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gitrev.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
@@ -97,6 +94,9 @@
       <Filter>1 Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PopMessage.h">
+      <Filter>1 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lsMisc\GetVersionStringFromResource.h">
       <Filter>1 Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -123,9 +123,6 @@
       <Filter>2 Source Files\lsMisc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\lsMisc\GetLastErrorString.cpp">
-      <Filter>2 Source Files\lsMisc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\lsMisc\GetVersionString.cpp">
       <Filter>2 Source Files\lsMisc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\lsMisc\HighDPI.cpp">
@@ -167,6 +164,9 @@
     <ClCompile Include="PopMessage.cpp">
       <Filter>2 Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\lsMisc\GetVersionStringFromResource.cpp">
+      <Filter>2 Source Files\lsMisc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirNotify.rc">
@@ -174,10 +174,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>3 Resource Files</Filter>
-    </Image>
-    <Image Include="DirNotify.ico">
+    <Image Include="icon.ico">
       <Filter>3 Resource Files</Filter>
     </Image>
   </ItemGroup>

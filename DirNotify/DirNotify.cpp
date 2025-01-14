@@ -278,7 +278,7 @@ void OnCommand(HWND hWnd, WORD cmd)
 	case IDC_ABOUT:
 	{
 		wstring message;
-		message += APP_NAME L" v" + GetVersionString(stdGetModuleFileName().c_str(),3);
+		message += APP_NAME L" v" + GetVersionStringFromResource(stdGetModuleFileName().c_str(),3);
 		message += L"\r\n\r\n";
 		message += I18N(L"Directories in monitor:");
 		message += L"\r\n";
@@ -480,72 +480,72 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	bool isMonitorFileOfDesktopAndSub = false;
 	bool isMonitorDirOfDesktopAndSub = false;
 
-	parser.AddOptionRange({ L"-df", L"--desktop-file" },
+	parser.AddOption({ L"-df", L"--desktop-file" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorFileOfDesktop,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Monitor Files of Desktop"));
-	parser.AddOptionRange({ L"-dd", L"--desktop-directory" },
+	parser.AddOption({ L"-dd", L"--desktop-directory" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorDirOfDesktop,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Monitor Directories of Desktop"));
-	parser.AddOptionRange({ L"-dfs", L"--desktop-file-subtree" },
+	parser.AddOption({ L"-dfs", L"--desktop-file-subtree" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorFileOfDesktopAndSub,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Monitor Files of Desktop and its subdirectories"));
-	parser.AddOptionRange({ L"-dds", L"--desktop-directory-subtree" },
+	parser.AddOption({ L"-dds", L"--desktop-directory-subtree" },
 		ArgCount::ArgCount_Zero,
 		& isMonitorDirOfDesktopAndSub,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Monitor Directories of Desktop and its subdirectories"));
 
-	parser.AddOptionRange({ L"-s",L"--sound"},
+	parser.AddOption({ L"-s",L"--sound"},
 		ArgCount::ArgCount_One,
 		&gdata.isSound_,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Plays sound on notification. '0', 'off' or 'no' to disable it."));
 
-	parser.AddOptionRange({ L"-w",L"--wavfile" },
+	parser.AddOption({ L"-w",L"--wavfile" },
 		ArgCount::ArgCount_One,
 		&gdata.wavFile_,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Wav-file to play sound on notification"));
 
 	bool isHelp = false;
-	parser.AddOptionRange({ L"-h", L"--help", L"/?", L"/h", L"/help" },
-		0,
+	parser.AddOption({ L"-h", L"--help", L"/?", L"/h", L"/help" },
+		ArgCount::ArgCount_Zero,
 		&isHelp,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Show Help"));
 
 	bool isVersion = false;
-	parser.AddOptionRange({ L"-v", L"--version", L"/v", L"/version" },
-		0,
+	parser.AddOption({ L"-v", L"--version", L"/v", L"/version" },
+		ArgCount::ArgCount_Zero,
 		&isVersion,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Show Version"));
 
-	COption opMonitorFile(L"-mf",
+	COption opMonitorFile({ L"-mf" },
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Directory to monitor Files"));
 	parser.AddOption(&opMonitorFile);
 
-	COption opMonitorDir(L"-md",
+	COption opMonitorDir({ L"-md" },
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Directory to monitor Directories"));
 	parser.AddOption(&opMonitorDir);
 
-	COption opMonitorFileSub(L"-mfs",
+	COption opMonitorFileSub({ L"-mfs" },
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Directory and its subdirectories to monitor Files"));
 	parser.AddOption(&opMonitorFileSub);
 
-	COption opMonitorDirSub(L"-mds",
+	COption opMonitorDirSub({ L"-mds" },
 		ArgCount::ArgCount_One,
 		ArgEncodingFlags::ArgEncodingFlags_Default,
 		I18N(L"Directory and its subdirectories to monitor Directories"));
@@ -575,7 +575,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	if (isVersion)
 	{
-		wstring message = APP_NAME L" v" + GetVersionString(stdGetModuleFileName().c_str(), 3);
+		wstring message = APP_NAME L" v" + GetVersionStringFromResource(stdGetModuleFileName().c_str(), 3);
 		message += L"\r\n\r\n";
 		message += L"GitRev:\r\n";
 		message += stdStringReplace(GITREV::GetHashMessage(), L"\n", L"\r\n");
