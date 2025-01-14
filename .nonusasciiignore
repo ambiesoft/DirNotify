@@ -1,0 +1,13 @@
+*.ico
+*.png
+*.wav
+*.rc
+
+# UTF16
+DirNotify/Resource.h
+Launcher/resource.h
+
+# Texts containing JP
+DirNotify/lang/jpn.txt
+Launcher/acknowledgements.txt
+Launcher/lang/jpn.txt
