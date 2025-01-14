@@ -1,3 +1,6 @@
+2025/01/14 v1.0.37
+Fixed: Refreshing of desktop icons
+
 2023/10/11 v1.0.36
 Fixed: Prevent desktop refresh when a change notification is not for desktop
 

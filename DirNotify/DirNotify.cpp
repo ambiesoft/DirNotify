@@ -97,10 +97,10 @@ void doShowPopup(HWND hWnd,
 
 	if(isDesktop)
 	{
-		std::thread thd([&] {
+		std::thread thd([](HWND hWnd) {
 			Sleep(3 * 1000);
 			PostMessage(hWnd, WM_APP_REFRESH_DESKTOP, 0, 0);
-			});
+			}, hWnd);
 		thd.detach();
 	}
 
